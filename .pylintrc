@@ -1,0 +1,15 @@
+[MASTER]
+jobs=1
+
+[REPORTS]
+output-format=colorized
+
+[MESSAGES CONTROL]
+disable=
+    missing-docstring,
+    ungrouped-imports,
+    invalid-name,
+    duplicate-code,
+    bad-continuation,
+    fixme,
+    arguments-differ
