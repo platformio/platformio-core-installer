@@ -22,11 +22,7 @@ setup(
     license=__license__,
     install_requires=[
         # Core
-        "platformio",
-        "starlette==0.13.1",
         "click==7.0",
-        "ujson==1.35",
-        "pyyaml==5.3",
     ],
     packages=find_packages(),
     entry_points={
