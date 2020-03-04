@@ -14,10 +14,7 @@ test:
 
 before-commit: isort format lint test
 
-clean-docs:
-	rm -rf docs/_build
-
-clean: clean-docs
+clean:
 	find . -name \*.pyc -delete
 	find . -name __pycache__ -delete
 	rm -rf .cache
