@@ -12,16 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import click
+from pioinstaller.cli import main
 
-from pioinstaller import __title__, __version__
-
-
-@click.group()
-@click.version_option(__version__, prog_name=__title__)
-def cli():
-    pass
-
-
-def main():
-    return cli()
+main()

@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import click
+import os
+import pathlib
 
-from pioinstaller import __title__, __version__
+import pytest
 
-
-@click.group()
-@click.version_option(__version__, prog_name=__title__)
-def cli():
-    pass
+from scripts import pack
 
 
-def main():
-    return cli()
+@pytest.fixture(scope="session")
+def prepare_get_platformio():
+    PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    get_platformio_path = pathlib.Path(PROJECT_ROOT) / "get-platformio.py"
+    if get_platformio_path.is_file():
+        return
+    pack.main()

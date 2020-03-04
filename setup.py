@@ -40,7 +40,7 @@ setup(
     packages=find_packages(),
     entry_points={
         "console_scripts": [
-            "pioinstaller = pioinstaller.cli:main",
+            "pioinstaller = pioinstaller.__main__:main",
         ]
     },
 )

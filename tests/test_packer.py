@@ -12,16 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import click
+import subprocess
 
 from pioinstaller import __title__, __version__
 
 
-@click.group()
-@click.version_option(__version__, prog_name=__title__)
-def cli():
-    pass
-
-
-def main():
-    return cli()
+def test_pioinstaller_packer(prepare_get_platformio):
+    output = subprocess.run(
+        ["python", "get-platformio.py", "--version"], check=True, capture_output=True
+    )
+    assert output.stdout.decode() == "%s, version %s\n" % (__title__, __version__)
