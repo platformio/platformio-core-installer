@@ -21,16 +21,10 @@ import subprocess
 import tempfile
 import zipfile
 
-PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+from pioinstaller.exception import InvalidFileFormat
 
-
-def _path(pyversion=None):
-    parts = [PROJECT_ROOT, pyversion, "get-platformio.py"]
-    return os.path.join(*filter(None, parts))
-
-
-def _template(name="default.py"):
-    return os.path.join(PROJECT_ROOT, "templates", name)
+PACK_ROOT = os.path.abspath(os.path.dirname(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(PACK_ROOT)))
 
 
 def create_wheels(package_dir: str, dest_dir: str):
@@ -39,7 +33,16 @@ def create_wheels(package_dir: str, dest_dir: str):
     )
 
 
-def main(installer_path=_path(), template_path=_template()):
+def pack(
+    installer_path: pathlib.Path = pathlib.Path(PROJECT_ROOT) / "get-platformio.py",
+):
+    assert isinstance(installer_path, pathlib.Path)
+
+    if not installer_path.suffix:
+        installer_path = installer_path / "get-platformio.py"
+    elif installer_path.suffix != ".py":
+        raise InvalidFileFormat(".py")
+
     with tempfile.TemporaryDirectory() as tmpdir:
         create_wheels("/Users/rs/WORK/platformio-core-installer", tmpdir)
 
@@ -58,7 +61,7 @@ def main(installer_path=_path(), template_path=_template()):
         os.makedirs(os.path.dirname(installer_path), exist_ok=True)
 
         # Load our wrapper template
-        with open(template_path, "r", encoding="utf8") as fp:
+        with open(os.path.join(PACK_ROOT, "template.py"), "r", encoding="utf8") as fp:
             WRAPPER_TEMPLATE = fp.read()
 
         with open(installer_path, "w") as fp:
@@ -72,7 +75,3 @@ def main(installer_path=_path(), template_path=_template()):
         oldmode = os.stat(installer_path).st_mode & 0o7777
         newmode = (oldmode | 0o555) & 0o7777
         os.chmod(installer_path, newmode)
-
-
-if __name__ == "__main__":
-    main()

@@ -12,16 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import click
 
-from pioinstaller import __title__, __version__
+class PlatformioInstallerException(Exception):
+
+    MESSAGE = None
+
+    def __str__(self):  # pragma: no cover
+        if self.MESSAGE:
+            # pylint: disable=not-an-iterable
+            return self.MESSAGE.format(*self.args)
+
+        return super(PlatformioInstallerException, self).__str__()
 
 
-@click.group()
-@click.version_option(__version__, prog_name=__title__)
-def cli():
-    pass
+class InvalidFileFormat(PlatformioInstallerException):
 
-
-def main():
-    return cli()
+    MESSAGE = "Invalid file format. It should be '{0}'"

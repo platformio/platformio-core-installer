@@ -12,18 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import pathlib
-
 import pytest
 
-from scripts import pack
+from pioinstaller.pack import packer
 
 
 @pytest.fixture(scope="session")
-def prepare_get_platformio():
-    PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    get_platformio_path = pathlib.Path(PROJECT_ROOT) / "get-platformio.py"
-    if get_platformio_path.is_file():
-        return
-    pack.main()
+def pio_installer_script():
+    packer.pack()

@@ -12,6 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pioinstaller.cli import main
+import pathlib
+import sys
 
-main()
+import click
+
+from pioinstaller import __title__, __version__
+from pioinstaller.pack import packer
+
+
+@click.group()
+@click.version_option(__version__, prog_name=__title__)
+def cli():
+    pass
+
+
+@cli.command()
+@click.argument("packed_path", required=False, type=click.Path())
+def pack(packed_path):
+    if packed_path:
+        return packer.pack(pathlib.Path(packed_path))
+    return packer.pack()
+
+
+def main():
+    return cli()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
