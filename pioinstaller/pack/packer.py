@@ -58,10 +58,6 @@ def pack(target=os.path.join(PROJECT_ROOT, "get-platformio.py"),):
                         continue
                     new_zip.writestr(zinfo, existing_zip.read(zinfo))
     zipdata = base64.b64encode(new_data.getvalue()).decode("utf8")
-    chunked = []
-    for i in range(0, len(zipdata), 79):
-        chunked.append(zipdata[i : i + 79])
-
     try:
         os.makedirs(os.path.dirname(target))
     except OSError:
@@ -73,7 +69,7 @@ def pack(target=os.path.join(PROJECT_ROOT, "get-platformio.py"),):
         ) as fp_template:
             fp.write(
                 fp_template.read().format(
-                    installed_version="latest", zipfile_content="\n".join(chunked),
+                    installed_version="latest", zipfile_content=zipdata,
                 ),
             )
 

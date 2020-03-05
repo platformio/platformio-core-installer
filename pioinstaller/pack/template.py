@@ -32,7 +32,7 @@ def main():
 
         pioinstaller_zip = os.path.join(tmpdir, "pioinstaller.zip")
         with open(pioinstaller_zip, "wb") as fp:
-            fp.write(b64decode(DATA.replace(b"\n", b"")))
+            fp.write(b64decode(DATA))
 
         sys.path.insert(0, pioinstaller_zip)
 
