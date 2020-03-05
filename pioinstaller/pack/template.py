@@ -82,11 +82,11 @@ def main():
     try:
         tmpdir = tempfile.mkdtemp()
 
-        platformio_zip = os.path.join(tmpdir, "platformio.zip")
-        with open(platformio_zip, "wb") as fp:
+        pioinstaller_zip = os.path.join(tmpdir, "pioinstaller.zip")
+        with open(pioinstaller_zip, "wb") as fp:
             fp.write(b85decode(DATA.replace(b"\n", b"")))
 
-        sys.path.insert(0, platformio_zip)
+        sys.path.insert(0, pioinstaller_zip)
 
         bootstrap()
     finally:
@@ -95,7 +95,7 @@ def main():
 
 
 DATA = b"""
-{zipfile}
+{zipfile_content}
 """
 
 

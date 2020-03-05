@@ -19,6 +19,6 @@ from pioinstaller import __title__, __version__
 
 def test_pioinstaller_packer(pio_installer_script):
     output = subprocess.run(
-        ["python", "get-platformio.py", "--version"], check=True, capture_output=True
+        ["python", pio_installer_script, "--version"], check=True, capture_output=True
     )
     assert output.stdout.decode() == "%s, version %s\n" % (__title__, __version__)

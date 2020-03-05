@@ -18,5 +18,6 @@ from pioinstaller.pack import packer
 
 
 @pytest.fixture(scope="session")
-def pio_installer_script():
-    packer.pack()
+def pio_installer_script(tmpdir_factory):
+    tmpdir = tmpdir_factory.mktemp("pioinstaller")
+    return packer.pack(str(tmpdir))

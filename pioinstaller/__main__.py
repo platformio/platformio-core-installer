@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pathlib
 import sys
 
 import click
@@ -28,10 +27,10 @@ def cli():
 
 
 @cli.command()
-@click.argument("packed_path", required=False, type=click.Path())
-def pack(packed_path):
-    if packed_path:
-        return packer.pack(pathlib.Path(packed_path))
+@click.argument("target", required=False, type=click.Path())
+def pack(target):
+    if target:
+        return packer.pack(target)
     return packer.pack()
 
 
