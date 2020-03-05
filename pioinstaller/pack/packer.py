@@ -16,6 +16,7 @@ import base64
 import io
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import zipfile
@@ -27,8 +28,8 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(PACK_ROOT)))
 
 
 def create_wheels(package_dir, dest_dir):
-    subprocess.run(
-        ["pip", "wheel", "--wheel-dir", dest_dir, "."], check=True, cwd=package_dir
+    subprocess.call(
+        ["pip", "wheel", "--wheel-dir", dest_dir, "."], cwd=package_dir
     )
 
 
@@ -45,36 +46,43 @@ def pack(target=os.path.join(PROJECT_ROOT, "get-platformio.py"),):
     assert isinstance(target, str)
 
     target = process_target(target)
+    tmpdir = tempfile.mkdtemp()
+    create_wheels(PROJECT_ROOT, tmpdir)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        create_wheels(PROJECT_ROOT, tmpdir)
+    new_data = io.BytesIO()
+    for whl in os.listdir(tmpdir):
+        with zipfile.ZipFile(os.path.join(tmpdir, whl)) as existing_zip:
+            with zipfile.ZipFile(new_data, mode="a") as new_zip:
+                for zinfo in existing_zip.infolist():
+                    if re.search(r"\.dist-info/", zinfo.filename):
+                        continue
+                    new_zip.writestr(zinfo, existing_zip.read(zinfo))
+    zipdata = base64.b64encode(new_data.getvalue()).decode("utf8")
+    chunked = []
+    for i in range(0, len(zipdata), 79):
+        chunked.append(zipdata[i : i + 79])
 
-        new_data = io.BytesIO()
-        for whl in os.listdir(tmpdir):
-            with zipfile.ZipFile(os.path.join(tmpdir, whl)) as existing_zip:
-                with zipfile.ZipFile(new_data, mode="a") as new_zip:
-                    for zinfo in existing_zip.infolist():
-                        if re.search(r"\.dist-info/", zinfo.filename):
-                            continue
-                        new_zip.writestr(zinfo, existing_zip.read(zinfo))
-        zipdata = base64.b85encode(new_data.getvalue()).decode("utf8")
-        chunked = []
-        for i in range(0, len(zipdata), 79):
-            chunked.append(zipdata[i : i + 79])
-        os.makedirs(os.path.dirname(target), exist_ok=True)
+    try:
+        os.makedirs(os.path.dirname(target))
+    except OSError:
+        pass
 
-        with open(target, "w") as fp:
-            with open(
-                os.path.join(PACK_ROOT, "template.py"), "r", encoding="utf8"
-            ) as fp_template:
-                fp.write(
-                    fp_template.read().format(
-                        installed_version="latest", zipfile_content="\n".join(chunked),
-                    ),
-                )
+    with open(target, "w") as fp:
+        with open(
+            os.path.join(PACK_ROOT, "template.py"), "r"
+        ) as fp_template:
+            fp.write(
+                fp_template.read().format(
+                    installed_version="latest", zipfile_content="\n".join(chunked),
+                ),
+            )
 
-        # Ensure the permissions on the newly created file
-        oldmode = os.stat(target).st_mode & 0o7777
-        newmode = (oldmode | 0o555) & 0o7777
-        os.chmod(target, newmode)
+    # Ensure the permissions on the newly created file
+    oldmode = os.stat(target).st_mode & 0o7777
+    newmode = (oldmode | 0o555) & 0o7777
+    os.chmod(target, newmode)
+
+    # Clearing up
+    shutil.rmtree(tmpdir)
+
     return target

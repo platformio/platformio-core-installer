@@ -12,7 +12,7 @@ format:
 test:
 	py.test --verbose --capture=no --exitfirst -n 6 --dist=loadscope tests
 
-before-commit: isort format lint test
+before-commit: isort lint test
 
 clean:
 	find . -name \*.pyc -delete
