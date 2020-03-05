@@ -47,7 +47,7 @@ def pack(target=os.path.join(PROJECT_ROOT, "get-platformio.py"),):
     target = process_target(target)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        create_wheels("/Users/rs/WORK/platformio-core-installer", tmpdir)
+        create_wheels(PROJECT_ROOT, tmpdir)
 
         new_data = io.BytesIO()
         for whl in os.listdir(tmpdir):
