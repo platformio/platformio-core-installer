@@ -28,13 +28,6 @@ def create_wheels(package_dir, dest_dir):
     subprocess.call(["pip", "wheel", "--wheel-dir", dest_dir, "."], cwd=package_dir)
 
 
-def process_target(target):
-    _, ext = os.path.splitext(target)
-    if not ext:
-        return os.path.join(target, "get-platformio.py")
-    return target
-
-
 def pack(target):
     assert isinstance(target, str)
 
