@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import sys
+from os import getcwd
 
 import click
 
@@ -27,11 +28,10 @@ def cli():
 
 
 @cli.command()
-@click.argument("target", required=False, type=click.Path())
+@click.argument("target", default=getcwd, required=False, type=click.Path(
+    exists=False, file_okay=True, dir_okay=True, writable=True, resolve_path=True))
 def pack(target):
-    if target:
-        return packer.pack(target)
-    return packer.pack()
+    return packer.pack(target)
 
 
 def main():

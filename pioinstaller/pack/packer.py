@@ -22,7 +22,6 @@ import tempfile
 import zipfile
 
 from pioinstaller import util
-from pioinstaller.exception import InvalidFileFormat
 
 
 def create_wheels(package_dir, dest_dir):
@@ -35,12 +34,10 @@ def process_target(target):
     _, ext = os.path.splitext(target)
     if not ext:
         return os.path.join(target, "get-platformio.py")
-    if ext != ".py":
-        raise InvalidFileFormat(".py")
     return target
 
 
-def pack(target=os.getcwd()):
+def pack(target):
     assert isinstance(target, str)
     target = process_target(target)
     tmpdir = tempfile.mkdtemp()
