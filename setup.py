@@ -36,11 +36,12 @@ setup(
     install_requires=[
         # Core
         "click==7.0",
+        "requests==2.23.0",
     ],
     packages=find_packages(),
     entry_points={
         "console_scripts": [
-            "pioinstaller = pioinstaller.cli:main",
+            "pioinstaller = pioinstaller.__main__:main",
         ]
     },
 )

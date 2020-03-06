@@ -12,17 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import sys
 
-VERSION = (0, 1, 0)
-__version__ = ".".join([str(s) for s in VERSION])
+import click
 
-__title__ = "platformio-installer"
-__description__ = "An installer for PlatformIO Core"
+from pioinstaller import __title__, __version__
+from pioinstaller.pack import packer
 
-__url__ = "https://platformio.org"
 
-__author__ = "PlatformIO"
-__email__ = "contact@platformio.org"
+@click.group()
+@click.version_option(__version__, prog_name=__title__)
+def cli():
+    pass
 
-__license__ = "Apache Software License"
-__copyright__ = "Copyright 2014-present PlatformIO"
+
+@cli.command()
+@click.argument(
+    "target",
+    default=os.getcwd,
+    required=False,
+    type=click.Path(
+        exists=False, file_okay=True, dir_okay=True, writable=True, resolve_path=True
+    ),
+)
+def pack(target):
+    return packer.pack(target)
+
+
+def main():
+    return cli()
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import click
-
-from pioinstaller import __title__, __version__
-
-
-@click.group()
-@click.version_option(__version__, prog_name=__title__)
-def cli():
-    pass
+import os
+import sys
 
 
-def main() -> int:
-    return cli()
+def get_source_dir():
+    curpath = os.path.realpath(__file__)
+    if not os.path.isfile(curpath):
+        for p in sys.path:
+            if os.path.isfile(os.path.join(p, __file__)):
+                curpath = os.path.join(p, __file__)
+                break
+    return os.path.dirname(curpath)

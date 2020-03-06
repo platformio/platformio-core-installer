@@ -12,17 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import subprocess
 
-VERSION = (0, 1, 0)
-__version__ = ".".join([str(s) for s in VERSION])
+from pioinstaller import __version__
 
-__title__ = "platformio-installer"
-__description__ = "An installer for PlatformIO Core"
 
-__url__ = "https://platformio.org"
-
-__author__ = "PlatformIO"
-__email__ = "contact@platformio.org"
-
-__license__ = "Apache Software License"
-__copyright__ = "Copyright 2014-present PlatformIO"
+def test_pioinstaller_packer(pio_installer_script):
+    output = subprocess.check_output(["python", pio_installer_script, "--version"])
+    assert ("version %s" % __version__) in output.decode()

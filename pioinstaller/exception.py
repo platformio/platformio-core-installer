@@ -13,16 +13,18 @@
 # limitations under the License.
 
 
-VERSION = (0, 1, 0)
-__version__ = ".".join([str(s) for s in VERSION])
+class PlatformioInstallerException(Exception):
 
-__title__ = "platformio-installer"
-__description__ = "An installer for PlatformIO Core"
+    MESSAGE = None
 
-__url__ = "https://platformio.org"
+    def __str__(self):  # pragma: no cover
+        if self.MESSAGE:
+            # pylint: disable=not-an-iterable
+            return self.MESSAGE.format(*self.args)
 
-__author__ = "PlatformIO"
-__email__ = "contact@platformio.org"
+        return super(PlatformioInstallerException, self).__str__()
 
-__license__ = "Apache Software License"
-__copyright__ = "Copyright 2014-present PlatformIO"
+
+class InvalidFileFormat(PlatformioInstallerException):
+
+    MESSAGE = "Invalid file format. It should be '{0}'"
