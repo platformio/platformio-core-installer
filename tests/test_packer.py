@@ -14,9 +14,9 @@
 
 import subprocess
 
-from pioinstaller import __title__, __version__
+from pioinstaller import __version__
 
 
 def test_pioinstaller_packer(pio_installer_script):
     output = subprocess.check_output(["python", pio_installer_script, "--version"])
-    assert "version %s" % __version__ in output.decode()
+    assert ("version %s" % __version__) in output.decode()
