@@ -25,9 +25,7 @@ from pioinstaller import util
 
 
 def create_wheels(package_dir, dest_dir):
-    subprocess.call(
-        ["pip", "wheel", "--wheel-dir", dest_dir, "."], cwd=package_dir
-    )
+    subprocess.call(["pip", "wheel", "--wheel-dir", dest_dir, "."], cwd=package_dir)
 
 
 def process_target(target):
@@ -58,7 +56,7 @@ def pack(target):
         pass
     with open(target, "w") as fp:
         with open(
-            os.path.join(util.get_source_dir(), 'pack', "template.py"), "r"
+            os.path.join(util.get_source_dir(), "pack", "template.py"), "r"
         ) as fp_template:
             fp.write(
                 fp_template.read().format(

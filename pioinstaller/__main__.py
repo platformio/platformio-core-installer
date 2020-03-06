@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
-from os import getcwd
 
 import click
 
@@ -28,8 +28,14 @@ def cli():
 
 
 @cli.command()
-@click.argument("target", default=getcwd, required=False, type=click.Path(
-    exists=False, file_okay=True, dir_okay=True, writable=True, resolve_path=True))
+@click.argument(
+    "target",
+    default=os.getcwd,
+    required=False,
+    type=click.Path(
+        exists=False, file_okay=True, dir_okay=True, writable=True, resolve_path=True
+    ),
+)
 def pack(target):
     return packer.pack(target)
 
