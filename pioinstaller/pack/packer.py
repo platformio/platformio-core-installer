@@ -37,7 +37,12 @@ def process_target(target):
 
 def pack(target):
     assert isinstance(target, str)
-    target = process_target(target)
+
+    if os.path.isdir(target):
+        target = os.path.join(target, "get-platformio.py")
+    if not os.path.isdir(os.path.dirname(target)):
+        os.makedirs(os.path.dirname(target))
+
     tmpdir = tempfile.mkdtemp()
     create_wheels(os.path.dirname(util.get_source_dir()), tmpdir)
 
@@ -50,10 +55,6 @@ def pack(target):
                         continue
                     new_zip.writestr(zinfo, existing_zip.read(zinfo))
     zipdata = base64.b64encode(new_data.getvalue()).decode("utf8")
-    try:
-        os.makedirs(os.path.dirname(target))
-    except OSError:
-        pass
     with open(target, "w") as fp:
         with open(
             os.path.join(util.get_source_dir(), "pack", "template.py"), "r"

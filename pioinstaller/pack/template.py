@@ -12,15 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os.path
+# pylint:disable=bad-option-value,import-outside-toplevel
+
+import os
 import shutil
 import sys
 import tempfile
 from base64 import b64decode
 
+DEPENDENCIES = b"""
+{zipfile_content}
+"""
+
 
 def bootstrap():
-    import pioinstaller.__main__  # pylint:disable=bad-option-value,import-outside-toplevel
+    import pioinstaller.__main__
 
     pioinstaller.__main__.main()
 
@@ -32,7 +38,7 @@ def main():
 
         pioinstaller_zip = os.path.join(tmpdir, "pioinstaller.zip")
         with open(pioinstaller_zip, "wb") as fp:
-            fp.write(b64decode(DATA))
+            fp.write(b64decode(DEPENDENCIES))
 
         sys.path.insert(0, pioinstaller_zip)
 
@@ -40,11 +46,6 @@ def main():
     finally:
         if tmpdir:
             shutil.rmtree(tmpdir, ignore_errors=True)
-
-
-DATA = b"""
-{zipfile_content}
-"""
 
 
 if __name__ == "__main__":
