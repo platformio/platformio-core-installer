@@ -21,10 +21,8 @@ import subprocess
 import tempfile
 import zipfile
 
+from pioinstaller import util
 from pioinstaller.exception import InvalidFileFormat
-
-PACK_ROOT = os.path.abspath(os.path.dirname(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(PACK_ROOT)))
 
 
 def create_wheels(package_dir, dest_dir):
@@ -42,12 +40,11 @@ def process_target(target):
     return target
 
 
-def pack(target=os.path.join(PROJECT_ROOT, "get-platformio.py"),):
+def pack(target=os.getcwd()):
     assert isinstance(target, str)
-
     target = process_target(target)
     tmpdir = tempfile.mkdtemp()
-    create_wheels(PROJECT_ROOT, tmpdir)
+    create_wheels(os.path.dirname(util.get_source_dir()), tmpdir)
 
     new_data = io.BytesIO()
     for whl in os.listdir(tmpdir):
@@ -62,10 +59,9 @@ def pack(target=os.path.join(PROJECT_ROOT, "get-platformio.py"),):
         os.makedirs(os.path.dirname(target))
     except OSError:
         pass
-
     with open(target, "w") as fp:
         with open(
-            os.path.join(PACK_ROOT, "template.py"), "r"
+            os.path.join(util.get_source_dir(), 'pack', "template.py"), "r"
         ) as fp_template:
             fp.write(
                 fp_template.read().format(
