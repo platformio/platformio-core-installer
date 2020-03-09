@@ -15,15 +15,39 @@
 import os
 import sys
 
+from pioinstaller.util import get_pythonexe_path
+
+
+def is_conda():
+    return any(
+        [
+            os.path.exists(os.path.join(sys.prefix, "conda-meta")),
+            # (os.getenv("CONDA_PREFIX") or os.getenv("CONDA_DEFAULT_ENV")),
+            ("anaconda" in sys.executable) or ("miniconda" in sys.executable),
+            ("Continuum Analytics" in sys.version) or ("conda" in sys.version),
+        ]
+    )
+
 
 def check():
     assert sys.platform != "cygwin"
+
+    # version check
     assert (
         sys.version_info >= (2, 7, 9) and sys.version_info < (3,)
     ) or sys.version_info >= (3, 5)
-    if sys.platform.lower().startswith("win"):
-        assert not any(s in sys.executable.lower() for s in ("msys", "mingw", "emacs"))
-        assert os.path.isdir(os.path.join(sys.prefix, "Scripts")) or (
-            sys.version_info >= (3, 5) and __import__("venv")
-        )
+
+    # conda check
+    assert not is_conda()
+
+    if not sys.platform.lower().startswith("win"):
+        return True
+
+    # windows check
+    assert not any(
+        s in get_pythonexe_path().lower() for s in ("msys", "mingw", "emacs")
+    )
+    assert os.path.isdir(os.path.join(sys.prefix, "Scripts")) or (
+        sys.version_info >= (3, 5) and __import__("venv")
+    )
     return True

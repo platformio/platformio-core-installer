@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import subprocess
 import sys
 
 import click
@@ -49,11 +50,11 @@ def check():
 @check.command()
 def python():
     assert python_check()
-    click.echo("Python check was successful.")
+    click.echo("The Python %s interpreter is compatible." % get_pythonexe_path())
 
 
 def main():
-    return cli()
+    return cli()  # pylint: disable=no-value-for-parameter
 
 
 if __name__ == "__main__":

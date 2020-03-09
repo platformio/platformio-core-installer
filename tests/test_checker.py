@@ -13,18 +13,20 @@
 # limitations under the License.
 
 import os
-import sys
+import subprocess
+
+import pytest
 
 
-def get_source_dir():
-    curpath = os.path.realpath(__file__)
-    if not os.path.isfile(curpath):
-        for p in sys.path:
-            if os.path.isfile(os.path.join(p, __file__)):
-                curpath = os.path.join(p, __file__)
-                break
-    return os.path.dirname(curpath)
+def test_check_default_python(pio_installer_script):
+    assert (
+        subprocess.check_call(["python", pio_installer_script, "check", "python"]) == 0
+    )
 
 
-def get_pythonexe_path():
-    return os.environ.get("PYTHONEXEPATH", os.path.normpath(sys.executable))
+def test_check_conda_python(pio_installer_script):
+    if os.getenv("APPVEYOR") or os.getenv("TRAVIS"):
+        with pytest.raises(subprocess.CalledProcessError) as excinfo:
+            subprocess.check_call(
+                [os.getenv("MINICONDA"), pio_installer_script, "check", "python"]
+            )
