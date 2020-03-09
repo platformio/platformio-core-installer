@@ -6,9 +6,9 @@ platform:
 environment:
   matrix:
     - TOXENV: "py27"
-      MINICONDA: "C:\Miniconda37\python"
+      MINICONDA: "C:\\Miniconda37\\python"
     - TOXENV: "py36"
-      MINICONDA: "C:\Miniconda37\python"
+      MINICONDA: "C:\\Miniconda37\\python"
 
 install:
   - cmd: git submodule update --init --recursive
