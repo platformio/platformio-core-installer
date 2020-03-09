@@ -19,6 +19,7 @@ import click
 
 from pioinstaller import __title__, __version__
 from pioinstaller.pack import packer
+from pioinstaller.python import check as python_check
 
 
 @click.group()
@@ -38,6 +39,17 @@ def cli():
 )
 def pack(target):
     return packer.pack(target)
+
+
+@cli.group()
+def check():
+    pass
+
+
+@check.command()
+def python():
+    assert python_check()
+    click.echo("Python check was successful.")
 
 
 def main():
