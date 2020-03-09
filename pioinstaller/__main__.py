@@ -21,12 +21,33 @@ import click
 from pioinstaller import __title__, __version__
 from pioinstaller.pack import packer
 from pioinstaller.python import check as python_check
+from pioinstaller.util import get_pythonexe_path
 
 
-@click.group()
+@click.group(name="main", invoke_without_command=True)
 @click.version_option(__version__, prog_name=__title__)
-def cli():
-    pass
+@click.pass_context
+def cli(ctx):
+    if not ctx.invoked_subcommand:
+        exenames = ["python3", "python", "python2"]
+        if sys.platform.lower().startswith("win"):
+            exenames = ["python.exe"]
+        compatible_exes = []
+        for path in os.getenv("PATH").split(os.pathsep):
+            for exe in exenames:
+                if not os.path.isfile(os.path.join(path, exe)):
+                    continue
+                if subprocess.call(
+                    [
+                        os.path.join(path, exe),
+                        os.path.abspath(sys.argv[0]),
+                        "check",
+                        "python",
+                    ]
+                ):
+                    continue
+                compatible_exes.append(os.path.join(path, exe))
+        click.echo("\n".join(compatible_exes))
 
 
 @cli.command()
