@@ -60,7 +60,7 @@ def find_compatible_pythons():
     exenames = ["python3", "python", "python2"]
     if util.IS_WINDOWS:
         exenames = ["python.exe"]
-    compatible_exes = []
+    result = []
     for path in os.getenv("PATH").split(os.pathsep):
         for exe in exenames:
             if not os.path.isfile(os.path.join(path, exe)):
@@ -77,5 +77,5 @@ def find_compatible_pythons():
                 != 0
             ):
                 continue
-            compatible_exes.append(os.path.join(path, exe))
-    return compatible_exes
+            result.append(os.path.join(path, exe))
+    return result
