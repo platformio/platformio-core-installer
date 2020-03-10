@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import subprocess
 import sys
 
-from pioinstaller import util
+from pioinstaller import exception, util
+
+log = logging.getLogger(__name__)
 
 
 def is_conda():
@@ -33,26 +36,36 @@ def is_conda():
 
 
 def check():
-    assert sys.platform != "cygwin"
+    # platform check
+    if sys.platform == "cygwin":
+        raise exception.IncompatiblePythonError("Unsupported cygwin platform.")
 
     # version check
-    assert (
+    if not (
         sys.version_info >= (2, 7, 9) and sys.version_info < (3,)
-    ) or sys.version_info >= (3, 5)
+    ) and not sys.version_info >= (3, 5):
+        raise exception.IncompatiblePythonError(
+            "Unsupported python version: %s. "
+            "Supported version: >= 2.7.9 and < 3, or >= 3.5." % sys.version,
+        )
 
     # conda check
-    assert not is_conda()
+    if is_conda():
+        raise exception.IncompatiblePythonError("Conda is not supported.")
 
     if not util.IS_WINDOWS:
         return True
 
     # windows check
-    assert not any(
-        s in util.get_pythonexe_path().lower() for s in ("msys", "mingw", "emacs")
-    )
-    assert os.path.isdir(os.path.join(sys.prefix, "Scripts")) or (
-        sys.version_info >= (3, 5) and __import__("venv")
-    )
+    if any(s in util.get_pythonexe_path().lower() for s in ("msys", "mingw", "emacs")):
+        raise exception.IncompatiblePythonError("Unsupported platform: ")
+
+    if not os.path.isdir(os.path.join(sys.prefix, "Scripts")):
+        raise exception.IncompatiblePythonError("Cannot find Scripts folder.")
+
+    if not (sys.version_info >= (3, 5) and __import__("venv")):
+        raise exception.IncompatiblePythonError("Cannot find venv module.")
+
     return True
 
 
@@ -61,10 +74,12 @@ def find_compatible_pythons():
     if util.IS_WINDOWS:
         exenames = ["python.exe"]
     result = []
+    log.debug("Current environment PATH %s", os.getenv("PATH"))
     for path in os.getenv("PATH").split(os.pathsep):
         for exe in exenames:
             if not os.path.isfile(os.path.join(path, exe)):
                 continue
+            log.debug("Found a Python candidate %s", path)
             if (
                 subprocess.call(
                     [

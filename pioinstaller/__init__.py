@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging.config
 
 VERSION = (0, 1, 0)
 __version__ = ".".join([str(s) for s in VERSION])
@@ -26,3 +27,9 @@ __email__ = "contact@platformio.org"
 
 __license__ = "Apache Software License"
 __copyright__ = "Copyright 2014-present PlatformIO"
+
+
+logging.basicConfig()
+logging.config.dictConfig(
+    {"version": 1, "loggers": {"pioinstaller": {"level": "INFO"}}}
+)

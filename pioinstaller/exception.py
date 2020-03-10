@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-class PlatformioInstallerException(Exception):
+class PIOInstallerException(Exception):
 
     MESSAGE = None
 
@@ -22,9 +22,9 @@ class PlatformioInstallerException(Exception):
             # pylint: disable=not-an-iterable
             return self.MESSAGE.format(*self.args)
 
-        return super(PlatformioInstallerException, self).__str__()
+        return super(PIOInstallerException, self).__str__()
 
 
-class InvalidFileFormat(PlatformioInstallerException):
+class IncompatiblePythonError(PIOInstallerException):
 
-    MESSAGE = "Invalid file format. It should be '{0}'"
+    MESSAGE = "{0}"
