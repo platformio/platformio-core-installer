@@ -12,21 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import sys
 
 import click
 
-from pioinstaller import __title__, __version__, util
+from pioinstaller import __title__, __version__, exception, util
 from pioinstaller.pack import packer
 from pioinstaller.python import check as python_check
 from pioinstaller.python import find_compatible_pythons
 
+log = logging.getLogger(__name__)
+
 
 @click.group(name="main", invoke_without_command=True)
 @click.version_option(__version__, prog_name=__title__)
+@click.option("--verbose", is_flag=True, default=False, help="Verbose output")
 @click.pass_context
-def cli(ctx):
+def cli(ctx, verbose):
+    if verbose:
+        logging.getLogger("pioinstaller").setLevel("DEBUG")
+    log.debug("Invoke: %s", ctx.info_name)
     if not ctx.invoked_subcommand:
         result = find_compatible_pythons()
         click.echo("\n".join(result))
@@ -52,8 +59,13 @@ def check():
 
 @check.command()
 def python():
-    assert python_check()
-    click.echo("The Python %s interpreter is compatible." % util.get_pythonexe_path())
+    try:
+        python_check()
+        click.echo(
+            "The Python %s interpreter is compatible." % util.get_pythonexe_path()
+        )
+    except exception.IncompatiblePythonError as e:
+        log.warning(str(e))
 
 
 def main():
