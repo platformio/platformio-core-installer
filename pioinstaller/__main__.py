@@ -13,15 +13,14 @@
 # limitations under the License.
 
 import os
-import subprocess
 import sys
 
 import click
 
-from pioinstaller import __title__, __version__
+from pioinstaller import __title__, __version__, util
 from pioinstaller.pack import packer
 from pioinstaller.python import check as python_check
-from pioinstaller.util import get_pythonexe_path
+from pioinstaller.python import find_compatible_pythons
 
 
 @click.group(name="main", invoke_without_command=True)
@@ -29,24 +28,7 @@ from pioinstaller.util import get_pythonexe_path
 @click.pass_context
 def cli(ctx):
     if not ctx.invoked_subcommand:
-        exenames = ["python3", "python", "python2"]
-        if sys.platform.lower().startswith("win"):
-            exenames = ["python.exe"]
-        compatible_exes = []
-        for path in os.getenv("PATH").split(os.pathsep):
-            for exe in exenames:
-                if not os.path.isfile(os.path.join(path, exe)):
-                    continue
-                if subprocess.call(
-                    [
-                        os.path.join(path, exe),
-                        os.path.abspath(sys.argv[0]),
-                        "check",
-                        "python",
-                    ]
-                ):
-                    continue
-                compatible_exes.append(os.path.join(path, exe))
+        compatible_exes = find_compatible_pythons()
         click.echo("\n".join(compatible_exes))
 
 
@@ -71,7 +53,7 @@ def check():
 @check.command()
 def python():
     assert python_check()
-    click.echo("The Python %s interpreter is compatible." % get_pythonexe_path())
+    click.echo("The Python %s interpreter is compatible." % util.get_pythonexe_path())
 
 
 def main():

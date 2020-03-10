@@ -15,6 +15,8 @@
 import os
 import sys
 
+IS_WINDOWS = sys.platform.lower().startswith("win")
+
 
 def get_source_dir():
     curpath = os.path.realpath(__file__)

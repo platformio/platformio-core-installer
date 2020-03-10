@@ -25,8 +25,9 @@ def test_check_default_python(pio_installer_script):
 
 
 def test_check_conda_python(pio_installer_script):
-    if os.getenv("APPVEYOR") or os.getenv("TRAVIS"):
-        with pytest.raises(subprocess.CalledProcessError) as excinfo:
-            subprocess.check_call(
-                [os.getenv("MINICONDA"), pio_installer_script, "check", "python"]
-            )
+    if not os.getenv("MINICONDA"):
+        return
+    with pytest.raises(subprocess.CalledProcessError) as excinfo:
+        subprocess.check_call(
+            [os.getenv("MINICONDA"), pio_installer_script, "check", "python"]
+        )

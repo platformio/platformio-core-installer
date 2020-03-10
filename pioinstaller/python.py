@@ -13,9 +13,10 @@
 # limitations under the License.
 
 import os
+import subprocess
 import sys
 
-from pioinstaller.util import get_pythonexe_path
+from pioinstaller import util
 
 
 def is_conda():
@@ -23,8 +24,10 @@ def is_conda():
         [
             os.path.exists(os.path.join(sys.prefix, "conda-meta")),
             # (os.getenv("CONDA_PREFIX") or os.getenv("CONDA_DEFAULT_ENV")),
-            ("anaconda" in sys.executable) or ("miniconda" in sys.executable),
-            ("Continuum Analytics" in sys.version) or ("conda" in sys.version),
+            "anaconda" in sys.executable,
+            "miniconda" in sys.executable,
+            "Continuum Analytics" in sys.version,
+            "conda" in sys.version,
         ]
     )
 
@@ -40,14 +43,39 @@ def check():
     # conda check
     assert not is_conda()
 
-    if not sys.platform.lower().startswith("win"):
+    if not util.IS_WINDOWS:
         return True
 
     # windows check
     assert not any(
-        s in get_pythonexe_path().lower() for s in ("msys", "mingw", "emacs")
+        s in util.get_pythonexe_path().lower() for s in ("msys", "mingw", "emacs")
     )
     assert os.path.isdir(os.path.join(sys.prefix, "Scripts")) or (
         sys.version_info >= (3, 5) and __import__("venv")
     )
     return True
+
+
+def find_compatible_pythons():
+    exenames = ["python3", "python", "python2"]
+    if util.IS_WINDOWS:
+        exenames = ["python.exe"]
+    compatible_exes = []
+    for path in os.getenv("PATH").split(os.pathsep):
+        for exe in exenames:
+            if not os.path.isfile(os.path.join(path, exe)):
+                continue
+            if (
+                subprocess.call(
+                    [
+                        os.path.join(path, exe),
+                        os.path.abspath(sys.argv[0]),
+                        "check",
+                        "python",
+                    ]
+                )
+                != 0
+            ):
+                continue
+            compatible_exes.append(os.path.join(path, exe))
+    return compatible_exes
