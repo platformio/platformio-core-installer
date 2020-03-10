@@ -28,8 +28,8 @@ from pioinstaller.python import find_compatible_pythons
 @click.pass_context
 def cli(ctx):
     if not ctx.invoked_subcommand:
-        compatible_exes = find_compatible_pythons()
-        click.echo("\n".join(compatible_exes))
+        result = find_compatible_pythons()
+        click.echo("\n".join(result))
 
 
 @cli.command()
