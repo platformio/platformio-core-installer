@@ -36,19 +36,26 @@ def is_conda():
 
 
 def check():
+    log.debug("sys.platform: %s", sys.platform)
+    log.debug("sys.version: %s", sys.version)
+    log.debug("sys.executable: %s", sys.executable)
+
     # platform check
     if sys.platform == "cygwin":
-        raise exception.IncompatiblePythonError("Unsupported cygwin platform")
+        raise exception.IncompatiblePythonError("Unsupported cygwin platform.")
 
     # version check
     if not (
         sys.version_info >= (2, 7, 9) and sys.version_info < (3,)
     ) and not sys.version_info >= (3, 5):
-        raise exception.IncompatiblePythonError("Unsupported python version.")
+        raise exception.IncompatiblePythonError(
+            "Unsupported python version. "
+            "Supported version: >= 2.7.9 and < 3, or >= 3.5."
+        )
 
     # conda check
-    if not is_conda():
-        raise exception.IncompatiblePythonError("Conda not supported")
+    if is_conda():
+        raise exception.IncompatiblePythonError("Conda not supported.")
 
     if not util.IS_WINDOWS:
         return True
@@ -56,7 +63,7 @@ def check():
     # windows check
     if any(s in util.get_pythonexe_path().lower() for s in ("msys", "mingw", "emacs")):
         raise exception.IncompatiblePythonError(
-            "Unsupported msys, mingw, emacs platforms"
+            "Unsupported msys, mingw, emacs platforms."
         )
 
     if not os.path.isdir(os.path.join(sys.prefix, "Scripts")):
