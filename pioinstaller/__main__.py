@@ -33,7 +33,10 @@ log = logging.getLogger(__name__)
 def cli(ctx, verbose):
     if verbose:
         logging.getLogger("pioinstaller").setLevel("DEBUG")
-    log.debug("Invoke: %s", ctx.info_name)
+    log.debug("Invoke: %s", " ".join(sys.argv))
+    log.debug("sys.platform: %s", sys.platform)
+    log.debug("sys.version: %s", sys.version)
+    log.debug("sys.executable: %s", sys.executable)
     if not ctx.invoked_subcommand:
         result = find_compatible_pythons()
         click.echo("\n".join(result))
