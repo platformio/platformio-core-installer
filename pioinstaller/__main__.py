@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import multiprocessing
 import os
 import sys
 
@@ -31,20 +30,17 @@ log = logging.getLogger(__name__)
 @click.group(name="main", invoke_without_command=True)
 @click.version_option(__version__, prog_name=__title__)
 @click.option("--verbose", is_flag=True, default=False, help="Verbose output")
-@click.option("--shutdown-servers", is_flag=True, default=True)
+@click.option("--shutdown-piohome/--no-shutdown-piohome", is_flag=True, default=True)
 @click.pass_context
-def cli(ctx, verbose, shutdown_servers):
+def cli(ctx, verbose, shutdown_piohome):
     if verbose:
         logging.getLogger("pioinstaller").setLevel("DEBUG")
     log.debug("Invoke: %s", " ".join(sys.argv))
     log.debug("sys.platform: %s", sys.platform)
     log.debug("sys.version: %s", sys.version)
     log.debug("sys.executable: %s", sys.executable)
-    if shutdown_servers:
-        proc = multiprocessing.Process(target=shutdown_pio_home_servers)
-        proc.start()
-        proc.join(10)
-        proc.terminate()
+    if shutdown_piohome:
+        shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
         result = find_compatible_pythons()
         click.echo("\n".join(result))
