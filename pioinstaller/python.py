@@ -85,6 +85,7 @@ def find_compatible_pythons():
                     [
                         os.path.join(path, exe),
                         os.path.abspath(sys.argv[0]),
+                        "--no-shutdown-piohome",
                         "check",
                         "python",
                     ]
