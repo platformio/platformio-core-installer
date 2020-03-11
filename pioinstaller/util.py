@@ -30,3 +30,19 @@ def get_source_dir():
 
 def get_pythonexe_path():
     return os.environ.get("PYTHONEXEPATH", os.path.normpath(sys.executable))
+
+
+def expanduser(path):
+    """
+    Be compatible with Python 3.8, on Windows skip HOME and check for USERPROFILE
+    """
+    if not IS_WINDOWS or not path.startswith("~") or "USERPROFILE" not in os.environ:
+        return os.path.expanduser(path)
+    return os.environ["USERPROFILE"] + path[1:]
+
+
+def has_non_ascii_char(text):
+    for c in text:
+        if ord(c) >= 128:
+            return True
+    return False
