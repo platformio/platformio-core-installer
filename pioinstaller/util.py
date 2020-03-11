@@ -41,5 +41,8 @@ def expanduser(path):
     return os.environ["USERPROFILE"] + path[1:]
 
 
-def is_ascii(s):
-    return all(ord(c) < 128 for c in s)
+def has_non_ascii_char(text):
+    for c in text:
+        if ord(c) >= 128:
+            return True
+    return False

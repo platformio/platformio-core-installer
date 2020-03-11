@@ -22,7 +22,7 @@ def _get_core_dir():
         return os.getenv("PLATFORMIO_CORE_DIR")
 
     core_dir = os.path.join(util.expanduser("~"), ".platformio")
-    if not util.IS_WINDOWS or util.is_ascii(core_dir):
+    if not util.IS_WINDOWS or not util.has_non_ascii_char(core_dir):
         return core_dir
 
     core_dir = os.path.splitdrive(core_dir)[0] + "\\.platformio"
