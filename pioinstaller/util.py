@@ -74,6 +74,7 @@ def find_file(name, path):
 def create_dir(path):
     try:
         os.makedirs(path)
+        return path
     except:  # pylint:disable=bare-except
         pass
 
@@ -84,8 +85,10 @@ def download_file(url, dst):
     with open(dst, "wb") as fp:
         for chunk in itercontent:
             fp.write(chunk)
+    return dst
 
 
 def unpack_archive(src, dst, mode="r:gz"):
     with tarfile.open(src, mode) as fp:
         fp.extractall(dst)
+    return dst

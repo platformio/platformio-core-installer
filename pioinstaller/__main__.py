@@ -35,7 +35,7 @@ def cli(ctx, verbose, shutdown_piohome, silent):
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
     elif silent:
-        logging.getLogger("pioinstaller").setLevel(logging.NOTSET)
+        logging.getLogger("pioinstaller").setLevel(logging.ERROR)
     log.info("Installer version: %s", __version__)
     log.debug("Invoke: %s", " ".join(sys.argv))
     log.debug("Platform: %s", sys.platform)
@@ -45,7 +45,7 @@ def cli(ctx, verbose, shutdown_piohome, silent):
         helpers.shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
         penv.create_virtualenv()
-        log.info("Virtual environment has been successfully created")
+        log.info("Virtual environment has been successfully created!")
 
 
 @cli.command()

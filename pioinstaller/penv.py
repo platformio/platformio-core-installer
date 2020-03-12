@@ -45,7 +45,7 @@ def clean_penv_dir():
         pass
 
 
-def download_virtualenv_exe(dst):
+def download_virtualenv_script(dst):
     venv_path = os.path.join(dst, "virtualenv.pyz")
 
     content_length = requests.head(VIRTUALENV_URL).headers.get("Content-Length")
@@ -54,9 +54,7 @@ def download_virtualenv_exe(dst):
         return venv_path
 
     log.debug("Downloading virtualenv package archive")
-    util.download_file(VIRTUALENV_URL, venv_path)
-
-    return venv_path
+    return util.download_file(VIRTUALENV_URL, venv_path)
 
 
 def create_virtualenv_with_local(python_exe):
@@ -82,9 +80,9 @@ def create_virtualenv_with_local(python_exe):
 
 def create_virtualenv_with_download(python_exe):
     clean_penv_dir()
-    venv_path = download_virtualenv_exe(core.get_cache_dir())
+    venv_path = download_virtualenv_script(core.get_cache_dir())
     if not venv_path:
-        raise exception.PIOInstallerException("Can not find virtualenv.py script")
+        raise exception.PIOInstallerException("Could not find virtualenv script")
     command = [python_exe, venv_path, get_penv_dir()]
     log.debug("Creating virtual environment: %s", " ".join(command))
     subprocess.check_output(command)
@@ -101,15 +99,15 @@ def create_virtualenv():
             return create_virtualenv_with_local(python_exe)
         except Exception as e:  # pylint:disable=broad-except
             log.debug(
-                "Can not create virtualenv with local packages"
-                " Trying download virtualenv.py script and using it. Error: %s",
+                "Could not create virtualenv with local packages"
+                " Trying download virtualenv script and using it. Error: %s",
                 str(e),
             )
             try:
                 return create_virtualenv_with_download(python_exe)
             except Exception as e:  # pylint:disable=broad-except
                 log.debug(
-                    "Can not create virtualenv with downloaded script. Error: %s",
+                    "Could not create virtualenv with downloaded script. Error: %s",
                     str(e),
                 )
     raise exception.PIOInstallerException(
