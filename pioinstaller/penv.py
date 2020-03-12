@@ -38,7 +38,7 @@ def get_penv_bin_dir():
 
 
 def clean_penv_dir():
-    log.debug("Virtualenv target path cleaning.")
+    log.debug("Virtualenv target path cleaning")
     try:
         return util.rmtree(get_penv_dir())
     except:  # pylint: disable=bare-except
@@ -50,7 +50,7 @@ def download_virtualenv_exe(dst):
 
     content_length = requests.head(VIRTUALENV_URL).headers.get("Content-Length")
     if os.path.exists(venv_path) and content_length == os.path.getsize(venv_path):
-        log.debug("Virtualenv package archive already exists.")
+        log.debug("Virtualenv package archive already exists")
         return venv_path
 
     log.debug("Downloading virtualenv package archive")
@@ -84,7 +84,7 @@ def create_virtualenv_with_download(python_exe):
     clean_penv_dir()
     venv_path = download_virtualenv_exe(core.get_cache_dir())
     if not venv_path:
-        raise exception.PIOInstallerException("Can not find virtualenv.py script.")
+        raise exception.PIOInstallerException("Can not find virtualenv.py script")
     command = [python_exe, venv_path, get_penv_dir()]
     log.debug("Creating virtual environment: %s", " ".join(command))
     subprocess.check_output(command)
@@ -92,7 +92,7 @@ def create_virtualenv_with_download(python_exe):
 
 
 def create_virtualenv():
-    log.info("Creating a virtual environment at %s.", get_penv_dir())
+    log.info("Creating a virtual environment at %s", get_penv_dir())
 
     python_exes = python.find_compatible_pythons()
     for python_exe in python_exes:
@@ -101,7 +101,7 @@ def create_virtualenv():
             return create_virtualenv_with_local(python_exe)
         except Exception as e:  # pylint:disable=broad-except
             log.debug(
-                "Can not create virtualenv with local packages."
+                "Can not create virtualenv with local packages"
                 " Trying download virtualenv.py script and using it. Error: %s",
                 str(e),
             )

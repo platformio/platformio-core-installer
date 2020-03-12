@@ -45,7 +45,7 @@ def cli(ctx, verbose, shutdown_piohome, silent):
         helpers.shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
         penv.create_virtualenv()
-        log.info("Virtual environment created successfully.")
+        log.info("Virtual environment has been successfully created")
 
 
 @cli.command()
