@@ -38,7 +38,7 @@ def is_conda():
 def check():
     # platform check
     if sys.platform == "cygwin":
-        raise exception.IncompatiblePythonError("Unsupported cygwin platform.")
+        raise exception.IncompatiblePythonError("Unsupported cygwin platform")
 
     # version check
     if not (
@@ -46,12 +46,12 @@ def check():
     ) and not sys.version_info >= (3, 5):
         raise exception.IncompatiblePythonError(
             "Unsupported python version: %s. "
-            "Supported version: >= 2.7.9 and < 3, or >= 3.5." % sys.version,
+            "Supported version: >= 2.7.9 and < 3, or >= 3.5" % sys.version,
         )
 
     # conda check
     if is_conda():
-        raise exception.IncompatiblePythonError("Conda is not supported.")
+        raise exception.IncompatiblePythonError("Conda is not supported")
 
     if not util.IS_WINDOWS:
         return True
@@ -61,10 +61,10 @@ def check():
         raise exception.IncompatiblePythonError("Unsupported platform: ")
 
     if not os.path.isdir(os.path.join(sys.prefix, "Scripts")):
-        raise exception.IncompatiblePythonError("Cannot find Scripts folder.")
+        raise exception.IncompatiblePythonError("Cannot find Scripts folder")
 
     if not (sys.version_info >= (3, 5) and __import__("venv")):
-        raise exception.IncompatiblePythonError("Cannot find venv module.")
+        raise exception.IncompatiblePythonError("Cannot find venv module")
 
     return True
 
@@ -80,18 +80,18 @@ def find_compatible_pythons():
             if not os.path.isfile(os.path.join(path, exe)):
                 continue
             log.debug("Found a Python candidate %s", path)
-            if (
-                subprocess.call(
+            try:
+                subprocess.check_output(
                     [
                         os.path.join(path, exe),
                         os.path.abspath(sys.argv[0]),
                         "--no-shutdown-piohome",
+                        "--silent",
                         "check",
                         "python",
                     ]
                 )
-                != 0
-            ):
+            except:  # pylint:disable=bare-except
                 continue
             result.append(os.path.join(path, exe))
     return result

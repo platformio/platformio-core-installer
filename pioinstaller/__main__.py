@@ -18,11 +18,9 @@ import sys
 
 import click
 
-from pioinstaller import __title__, __version__, exception, util
-from pioinstaller.helpers import shutdown_pio_home_servers
+from pioinstaller import __title__, __version__, exception, helpers, penv, util
 from pioinstaller.pack import packer
 from pioinstaller.python import check as python_check
-from pioinstaller.python import find_compatible_pythons
 
 log = logging.getLogger(__name__)
 
@@ -31,19 +29,23 @@ log = logging.getLogger(__name__)
 @click.version_option(__version__, prog_name=__title__)
 @click.option("--verbose", is_flag=True, default=False, help="Verbose output")
 @click.option("--shutdown-piohome/--no-shutdown-piohome", is_flag=True, default=True)
+@click.option("--silent/--no-silent", is_flag=True, default=False)
 @click.pass_context
-def cli(ctx, verbose, shutdown_piohome):
+def cli(ctx, verbose, shutdown_piohome, silent):
     if verbose:
-        logging.getLogger("pioinstaller").setLevel("DEBUG")
+        logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
+    elif silent:
+        logging.getLogger("pioinstaller").setLevel(logging.ERROR)
+    log.info("Installer version: %s", __version__)
     log.debug("Invoke: %s", " ".join(sys.argv))
-    log.debug("sys.platform: %s", sys.platform)
-    log.debug("sys.version: %s", sys.version)
-    log.debug("sys.executable: %s", sys.executable)
+    log.debug("Platform: %s", sys.platform)
+    log.info("Python version: %s", sys.version)
+    log.info("Python path: %s", sys.executable)
     if shutdown_piohome:
-        shutdown_pio_home_servers()
+        helpers.shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
-        result = find_compatible_pythons()
-        click.echo("\n".join(result))
+        penv.create_virtualenv()
+        log.info("Virtual environment has been successfully created!")
 
 
 @cli.command()

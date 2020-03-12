@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import os
+import shutil
+import stat
 import sys
+import tarfile
+
+import requests
 
 IS_WINDOWS = sys.platform.lower().startswith("win")
 
@@ -46,3 +52,43 @@ def has_non_ascii_char(text):
         if ord(c) >= 128:
             return True
     return False
+
+
+def rmtree(path):
+    def _onerror(func, path, __):
+        st_mode = os.stat(path).st_mode
+        if st_mode & stat.S_IREAD:
+            os.chmod(path, st_mode | stat.S_IWRITE)
+        func(path)
+
+    return shutil.rmtree(path, onerror=_onerror)
+
+
+def find_file(name, path):
+    for root, _, files in os.walk(path):
+        if name in files:
+            return os.path.join(root, name)
+    return None
+
+
+def create_dir(path):
+    try:
+        os.makedirs(path)
+        return path
+    except:  # pylint:disable=bare-except
+        pass
+
+
+def download_file(url, dst):
+    resp = requests.get(url, stream=True)
+    itercontent = resp.iter_content(chunk_size=io.DEFAULT_BUFFER_SIZE)
+    with open(dst, "wb") as fp:
+        for chunk in itercontent:
+            fp.write(chunk)
+    return dst
+
+
+def unpack_archive(src, dst, mode="r:gz"):
+    with tarfile.open(src, mode) as fp:
+        fp.extractall(dst)
+    return dst
