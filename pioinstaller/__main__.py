@@ -29,19 +29,23 @@ log = logging.getLogger(__name__)
 @click.version_option(__version__, prog_name=__title__)
 @click.option("--verbose", is_flag=True, default=False, help="Verbose output")
 @click.option("--shutdown-piohome/--no-shutdown-piohome", is_flag=True, default=True)
+@click.option("--silent/--no-silent", is_flag=True, default=False)
 @click.pass_context
-def cli(ctx, verbose, shutdown_piohome):
+def cli(ctx, verbose, shutdown_piohome, silent):
     if verbose:
-        logging.getLogger("pioinstaller").setLevel("DEBUG")
-    log.debug("Invoke: %s", " ".join(sys.argv))
+        logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
+    elif silent:
+        logging.getLogger("pioinstaller").setLevel(logging.NOTSET)
     log.info("Installer version: %s", __version__)
-    log.debug("sys.platform: %s", sys.platform)
-    log.info("sys.version: %s", sys.version)
-    log.info("sys.executable: %s", sys.executable)
+    log.debug("Invoke: %s", " ".join(sys.argv))
+    log.debug("Platform: %s", sys.platform)
+    log.info("Python version: %s", sys.version)
+    log.info("Python path: %s", sys.executable)
     if shutdown_piohome:
         helpers.shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
         penv.create_virtualenv()
+        log.info("Virtual environment created successfully.")
 
 
 @cli.command()

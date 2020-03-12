@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import os
 import shutil
 import stat
@@ -78,8 +79,11 @@ def create_dir(path):
 
 
 def download_file(url, dst):
+    resp = requests.get(url, stream=True)
+    itercontent = resp.iter_content(chunk_size=io.DEFAULT_BUFFER_SIZE)
     with open(dst, "wb") as fp:
-        fp.write(requests.get(url).content)
+        for chunk in itercontent:
+            fp.write(chunk)
 
 
 def unpack_archive(src, dst, mode="r:gz"):
