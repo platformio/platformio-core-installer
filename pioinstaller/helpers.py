@@ -93,7 +93,7 @@ def create_virtualenv_with_local(python_exe):
             return core.get_penv_dir()
         except Exception as e:  # pylint:disable=broad-except
             last_error = e
-    raise last_error
+    raise last_error  # pylint:disable=raising-bad-type
 
 
 def create_virtualenv_with_download(python_exe):
