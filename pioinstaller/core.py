@@ -20,7 +20,7 @@ from pioinstaller import util
 log = logging.getLogger(__name__)
 
 
-def _get_core_dir():
+def get_core_dir():
     if os.getenv("PLATFORMIO_CORE_DIR"):
         return os.getenv("PLATFORMIO_CORE_DIR")
 
@@ -41,22 +41,3 @@ def _get_core_dir():
             pass
 
     return core_dir
-
-
-def get_penv_dir():
-    if os.getenv("PLATFORMIO_PENV_DIR"):
-        return os.getenv("PLATFORMIO_PENV_DIR")
-
-    return os.path.join(_get_core_dir(), "penv")
-
-
-def get_penv_bin_dir():
-    return os.path.join(get_penv_dir(), "Scripts" if util.IS_WINDOWS else "bin")
-
-
-def clean_penv_dir():
-    log.debug("Virtualenv target path cleaning.")
-    try:
-        return util.rmtree(get_penv_dir())
-    except:  # pylint: disable=bare-except
-        pass

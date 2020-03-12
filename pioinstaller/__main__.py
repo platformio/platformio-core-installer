@@ -18,7 +18,7 @@ import sys
 
 import click
 
-from pioinstaller import __title__, __version__, exception, helpers, util
+from pioinstaller import __title__, __version__, exception, helpers, penv, util
 from pioinstaller.pack import packer
 from pioinstaller.python import check as python_check
 
@@ -34,13 +34,14 @@ def cli(ctx, verbose, shutdown_piohome):
     if verbose:
         logging.getLogger("pioinstaller").setLevel("DEBUG")
     log.debug("Invoke: %s", " ".join(sys.argv))
+    log.info("Installer version: %s", __version__)
     log.debug("sys.platform: %s", sys.platform)
-    log.debug("sys.version: %s", sys.version)
-    log.debug("sys.executable: %s", sys.executable)
+    log.info("sys.version: %s", sys.version)
+    log.info("sys.executable: %s", sys.executable)
     if shutdown_piohome:
         helpers.shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
-        helpers.create_pio_virtualenv()
+        penv.create_virtualenv()
 
 
 @cli.command()

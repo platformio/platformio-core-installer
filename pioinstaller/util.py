@@ -16,6 +16,9 @@ import os
 import shutil
 import stat
 import sys
+import tarfile
+
+import requests
 
 IS_WINDOWS = sys.platform.lower().startswith("win")
 
@@ -72,3 +75,13 @@ def create_dir(path):
         os.makedirs(path)
     except:  # pylint:disable=bare-except
         pass
+
+
+def download_file(url, dst):
+    with open(dst, "wb") as fp:
+        fp.write(requests.get(url).content)
+
+
+def unpack_archive(src, dst, mode="r:gz"):
+    with tarfile.open(src, mode) as fp:
+        fp.extractall(dst)
