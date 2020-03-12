@@ -24,17 +24,18 @@ HTTP_PORT_END = 8050
 log = logging.getLogger(__name__)
 
 
-def shutdown_pio_home_servers():
-    def _shutdown():
-        for port in range(HTTP_PORT_BEGIN, HTTP_PORT_END):
-            try:
-                requests.get(
-                    "http://%s:%d?__shutdown__=1" % (HTTP_HOST, port), timeout=(0.5, 2)
-                )
-                log.debug("The server %s:%d is stopped", HTTP_HOST, port)
-            except:  # pylint:disable=bare-except
-                pass
+def _shutdown():
+    for port in range(HTTP_PORT_BEGIN, HTTP_PORT_END):
+        try:
+            requests.get(
+                "http://%s:%d?__shutdown__=1" % (HTTP_HOST, port), timeout=(0.5, 2)
+            )
+            log.debug("The server %s:%d is stopped", HTTP_HOST, port)
+        except:  # pylint:disable=bare-except
+            pass
 
+
+def shutdown_pio_home_servers():
     proc = multiprocessing.Process(target=_shutdown)
     proc.start()
     proc.join(10)
