@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 
 from pioinstaller import util
+
+log = logging.getLogger(__name__)
 
 
 def _get_core_dir():
@@ -49,3 +52,11 @@ def get_penv_dir():
 
 def get_penv_bin_dir():
     return os.path.join(get_penv_dir(), "Scripts" if util.IS_WINDOWS else "bin")
+
+
+def clean_penv_dir():
+    log.debug("Virtualenv target path cleaning.")
+    try:
+        return util.rmtree(get_penv_dir())
+    except:  # pylint: disable=bare-except
+        pass

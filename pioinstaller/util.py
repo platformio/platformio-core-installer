@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import os
+import shutil
+import stat
 import sys
 
 IS_WINDOWS = sys.platform.lower().startswith("win")
@@ -46,3 +48,27 @@ def has_non_ascii_char(text):
         if ord(c) >= 128:
             return True
     return False
+
+
+def rmtree(path):
+    def _onerror(func, path, __):
+        st_mode = os.stat(path).st_mode
+        if st_mode & stat.S_IREAD:
+            os.chmod(path, st_mode | stat.S_IWRITE)
+        func(path)
+
+    return shutil.rmtree(path, onerror=_onerror)
+
+
+def find_file(name, path):
+    for root, _, files in os.walk(path):
+        if name in files:
+            return os.path.join(root, name)
+    return None
+
+
+def create_dir(path):
+    try:
+        os.makedirs(path)
+    except:  # pylint:disable=bare-except
+        pass

@@ -80,8 +80,8 @@ def find_compatible_pythons():
             if not os.path.isfile(os.path.join(path, exe)):
                 continue
             log.debug("Found a Python candidate %s", path)
-            if (
-                subprocess.call(
+            try:
+                subprocess.check_output(
                     [
                         os.path.join(path, exe),
                         os.path.abspath(sys.argv[0]),
@@ -90,8 +90,7 @@ def find_compatible_pythons():
                         "python",
                     ]
                 )
-                != 0
-            ):
+            except:  # pylint:disable=bare-except
                 continue
             result.append(os.path.join(path, exe))
     return result

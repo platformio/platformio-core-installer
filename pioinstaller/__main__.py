@@ -18,11 +18,9 @@ import sys
 
 import click
 
-from pioinstaller import __title__, __version__, exception, util
-from pioinstaller.helpers import shutdown_pio_home_servers
+from pioinstaller import __title__, __version__, exception, helpers, util
 from pioinstaller.pack import packer
 from pioinstaller.python import check as python_check
-from pioinstaller.python import find_compatible_pythons
 
 log = logging.getLogger(__name__)
 
@@ -40,10 +38,9 @@ def cli(ctx, verbose, shutdown_piohome):
     log.debug("sys.version: %s", sys.version)
     log.debug("sys.executable: %s", sys.executable)
     if shutdown_piohome:
-        shutdown_pio_home_servers()
+        helpers.shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
-        result = find_compatible_pythons()
-        click.echo("\n".join(result))
+        helpers.create_pio_virtualenv()
 
 
 @cli.command()

@@ -29,7 +29,7 @@ __license__ = "Apache Software License"
 __copyright__ = "Copyright 2014-present PlatformIO"
 
 
-logging.basicConfig()
+logging.basicConfig(format="%(levelname)s: %(message)s")
 logging.config.dictConfig(
     {"version": 1, "loggers": {"pioinstaller": {"level": "INFO"}}}
 )
