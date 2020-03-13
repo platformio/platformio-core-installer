@@ -82,7 +82,7 @@ def find_compatible_pythons():
             candidates.append(os.path.join(path, exe))
     result = []
     for item in candidates:
-        log.debug("Found a Python candidate %s", item)
+        log.debug("Checking a Python candidate %s", item)
         try:
             subprocess.check_output(
                 [
@@ -95,6 +95,7 @@ def find_compatible_pythons():
                 ]
             )
             result.append(item)
+            log.debug("Found a compatible Python %s", item)
         except:  # pylint:disable=bare-except
             pass
     return result
