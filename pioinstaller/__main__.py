@@ -14,6 +14,7 @@
 
 import logging
 import os
+import platform
 import sys
 
 import click
@@ -38,7 +39,7 @@ def cli(ctx, verbose, shutdown_piohome, silent):
         logging.getLogger("pioinstaller").setLevel(logging.ERROR)
     log.info("Installer version: %s", __version__)
     log.debug("Invoke: %s", " ".join(sys.argv))
-    log.debug("Operating system: %s", os.uname())
+    log.debug("Operating system: %s", platform.platform())
     log.info("Python version: %s", sys.version)
     log.info("Python path: %s", sys.executable)
     if shutdown_piohome:

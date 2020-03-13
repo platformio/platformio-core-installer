@@ -94,7 +94,7 @@ def find_compatible_pythons():
                     "python",
                 ]
             )
+            result.append(item)
         except:  # pylint:disable=bare-except
-            continue
-        result.append(item)
+            pass
     return result
