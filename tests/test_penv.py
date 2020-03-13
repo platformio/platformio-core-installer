@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import logging
 import os
 import subprocess
 
-from pioinstaller import penv, python, util
+from pioinstaller import __version__, penv, python, util
 
 
 def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
@@ -31,6 +33,9 @@ def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
     )
+    with open(os.path.join(penv_path, "state.json")) as fp:
+        json_info = json.load(fp)
+        assert json_info.get("installer_version") == __version__
 
 
 def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
@@ -52,6 +57,9 @@ def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
     )
+    with open(os.path.join(penv_path, "state.json")) as fp:
+        json_info = json.load(fp)
+        assert json_info.get("installer_version") == __version__
 
 
 def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
@@ -70,3 +78,6 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
     )
+    with open(os.path.join(penv_path, "state.json")) as fp:
+        json_info = json.load(fp)
+        assert json_info.get("installer_version") == __version__

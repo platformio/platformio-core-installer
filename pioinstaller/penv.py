@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 import os
+import platform
 import subprocess
 import sys
+import time
 
 import requests
 
-from pioinstaller import core, exception, python, util
+from pioinstaller import __version__, core, exception, python, util
 
 log = logging.getLogger(__name__)
 
@@ -87,6 +90,20 @@ def download_portable_python():
     return os.path.join(util.unpack_archive(archive_path, python_path), "python.exe")
 
 
+def add_state_info(python_exe, penv_dir):
+    output = subprocess.check_output([python_exe, "--version"]).decode()
+    python_version = output.replace("Python ", "").replace("\n", "")
+    json_info = {
+        "created_on": int(round(time.time())),
+        "python": {"path": python_exe, "version": python_version,},
+        "installer_version": __version__,
+        "os": platform.platform(),
+    }
+    with open(os.path.join(penv_dir, "state.json"), "w") as fp:
+        json.dump(json_info, fp)
+    return os.path.join(penv_dir, "state.json")
+
+
 def create_virtualenv_with_local(python_exe, penv_dir):
     venv_cmd_options = [
         [python_exe, "-m", "venv", penv_dir],
@@ -101,6 +118,7 @@ def create_virtualenv_with_local(python_exe, penv_dir):
         log.debug("Creating virtual environment: %s", " ".join(command))
         try:
             subprocess.check_output(command)
+            add_state_info(python_exe, penv_dir)
             return penv_dir
         except Exception as e:  # pylint:disable=broad-except
             last_error = e
@@ -115,6 +133,7 @@ def create_virtualenv_with_download(python_exe, penv_dir):
     command = [python_exe, venv_path, penv_dir]
     log.debug("Creating virtual environment: %s", " ".join(command))
     subprocess.check_output(command)
+    add_state_info(python_exe, penv_dir)
     return penv_dir
 
 
@@ -127,6 +146,7 @@ def create_virtualenv_with_portable_python(penv_dir):
     command = [python_exe, venv_path, penv_dir]
     log.debug("Creating virtual environment: %s", " ".join(command))
     subprocess.check_output(command)
+    add_state_info(python_exe, penv_dir)
     return penv_dir
 
 
