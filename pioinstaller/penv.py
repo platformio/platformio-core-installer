@@ -90,8 +90,7 @@ def create_virtualenv_with_download(python_exe, penv_dir):
 
 
 def create_virtualenv(penv_dir=None):
-    if not penv_dir:
-        penv_dir = get_penv_dir()
+    penv_dir = penv_dir or get_penv_dir()
 
     log.info("Creating a virtual environment at %s", penv_dir)
 

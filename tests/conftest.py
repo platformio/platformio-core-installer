@@ -14,7 +14,6 @@
 
 import pytest
 
-from pioinstaller import util
 from pioinstaller.pack import packer
 
 
@@ -22,11 +21,3 @@ from pioinstaller.pack import packer
 def pio_installer_script(tmpdir_factory):
     tmpdir = tmpdir_factory.mktemp("pioinstaller")
     return packer.pack(str(tmpdir))
-
-
-@pytest.fixture
-def mock_functions(pio_installer_script, monkeypatch):
-    def get_installer_script():
-        return pio_installer_script
-
-    monkeypatch.setattr(util, "get_installer_script", get_installer_script)
