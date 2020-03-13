@@ -35,6 +35,15 @@ def is_conda():
     )
 
 
+def is_portable():
+    try:
+        import winpython  # pylint:disable=import-outside-toplevel, unused-import
+
+        return True
+    except:  # pylint:disable=bare-except
+        return False
+
+
 def check():
     # platform check
     if sys.platform == "cygwin":
@@ -80,6 +89,11 @@ def find_compatible_pythons():
             if not os.path.isfile(os.path.join(path, exe)):
                 continue
             candidates.append(os.path.join(path, exe))
+    if sys.executable not in candidates:
+        if sys.version_info >= (3,):
+            candidates.insert(0, sys.executable)
+        else:
+            candidates.append(sys.executable)
     result = []
     for item in candidates:
         log.debug("Checking a Python candidate %s", item)

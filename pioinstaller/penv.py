@@ -15,6 +15,7 @@
 import logging
 import os
 import subprocess
+import sys
 
 import requests
 
@@ -24,6 +25,14 @@ log = logging.getLogger(__name__)
 
 
 VIRTUALENV_URL = "https://bootstrap.pypa.io/virtualenv/virtualenv.pyz"
+PORTABLE_PYTHON_64 = (
+    "https://dl.bintray.com/platformio/dl-misc/"
+    "python-portable-windows_amd64-3.7.6.tar.gz"
+)
+PORTABLE_PYTHON_32 = (
+    "https://dl.bintray.com/platformio/dl-misc/"
+    "python-portable-windows_x86-3.7.6.tar.gz"
+)
 
 
 def get_penv_dir():
@@ -58,6 +67,26 @@ def download_virtualenv_script(dst):
     return util.download_file(VIRTUALENV_URL, venv_path)
 
 
+def download_portable_python():
+    link = PORTABLE_PYTHON_64 if sys.maxsize > 2 ** 32 else PORTABLE_PYTHON_32
+
+    archive_path = os.path.join(core.get_cache_dir(), "portable_python.tar.gz")
+    util.download_file(link, archive_path)
+
+    python_path = os.path.join(core.get_core_dir(), "python37")
+    if os.path.isdir(python_path):
+        try:
+            util.rmtree(python_path)
+        except:  # pylint: disable=bare-except
+            pass
+    try:
+        os.makedirs(python_path)
+    except:  # pylint:disable=bare-except
+        pass
+
+    return os.path.join(util.unpack_archive(archive_path, python_path), "python.exe")
+
+
 def create_virtualenv_with_local(python_exe, penv_dir):
     venv_cmd_options = [
         [python_exe, "-m", "venv", penv_dir],
@@ -79,6 +108,18 @@ def create_virtualenv_with_local(python_exe, penv_dir):
 
 
 def create_virtualenv_with_download(python_exe, penv_dir):
+    clean_dir(penv_dir)
+    venv_path = download_virtualenv_script(core.get_cache_dir())
+    if not venv_path:
+        raise exception.PIOInstallerException("Could not find virtualenv script")
+    command = [python_exe, venv_path, penv_dir]
+    log.debug("Creating virtual environment: %s", " ".join(command))
+    subprocess.check_output(command)
+    return penv_dir
+
+
+def create_virtualenv_with_portable_python(penv_dir):
+    python_exe = download_portable_python()
     clean_dir(penv_dir)
     venv_path = download_virtualenv_script(core.get_cache_dir())
     if not venv_path:
@@ -112,6 +153,14 @@ def create_virtualenv(penv_dir=None):
                     "Could not create virtualenv with downloaded script. Error: %s",
                     str(e),
                 )
+
+    if util.IS_WINDOWS and not python.is_portable():
+        try:
+            return create_virtualenv_with_portable_python(penv_dir)
+        except Exception as e:  # pylint:disable=broad-except
+            log.debug(
+                "Could not create virtualenv with downloaded script. Error: %s", str(e),
+            )
     raise exception.PIOInstallerException(
         "Could not create PIO Core Virtual Environment. "
         "Please create it manually -> http://bit.ly/pio-core-virtualenv"

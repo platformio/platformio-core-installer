@@ -52,3 +52,21 @@ def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
     )
+
+
+def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
+    if not util.IS_WINDOWS:
+        return
+    monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
+
+    penv_path = str(tmpdir.mkdir("penv"))
+
+    assert penv.create_virtualenv_with_portable_python(penv_path)
+
+    python_exe = os.path.join(penv_path, "bin", "python")
+    if util.IS_WINDOWS:
+        python_exe = os.path.join(penv_path, "Scripts", "python.exe")
+    assert (
+        subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
+        == 0
+    )
