@@ -73,25 +73,28 @@ def find_compatible_pythons():
     exenames = ["python3", "python", "python2"]
     if util.IS_WINDOWS:
         exenames = ["python.exe"]
-    result = []
     log.debug("Current environment PATH %s", os.getenv("PATH"))
-    for path in os.getenv("PATH").split(os.pathsep):
-        for exe in exenames:
+    candidates = []
+    for exe in exenames:
+        for path in os.getenv("PATH").split(os.pathsep):
             if not os.path.isfile(os.path.join(path, exe)):
                 continue
-            log.debug("Found a Python candidate %s", path)
-            try:
-                subprocess.check_output(
-                    [
-                        os.path.join(path, exe),
-                        os.path.abspath(sys.argv[0]),
-                        "--no-shutdown-piohome",
-                        "--silent",
-                        "check",
-                        "python",
-                    ]
-                )
-            except:  # pylint:disable=bare-except
-                continue
-            result.append(os.path.join(path, exe))
+            candidates.append(os.path.join(path, exe))
+    result = []
+    for item in candidates:
+        log.debug("Found a Python candidate %s", item)
+        try:
+            subprocess.check_output(
+                [
+                    item,
+                    os.path.abspath(sys.argv[0]),
+                    "--no-shutdown-piohome",
+                    "--silent",
+                    "check",
+                    "python",
+                ]
+            )
+        except:  # pylint:disable=bare-except
+            continue
+        result.append(item)
     return result
