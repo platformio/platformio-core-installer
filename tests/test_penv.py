@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import json
-import logging
 import os
 import subprocess
 
@@ -68,7 +67,6 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
     penv_path = str(tmpdir.mkdir("penv"))
-
     assert penv.create_virtualenv_with_portable_python(penv_path)
 
     python_exe = os.path.join(penv_path, "bin", "python")
@@ -81,3 +79,16 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
     with open(os.path.join(penv_path, "state.json")) as fp:
         json_info = json.load(fp)
         assert json_info.get("installer_version") == __version__
+
+
+def test_installing_pip(pio_installer_script, tmpdir, monkeypatch):
+    monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
+
+    penv_path = str(tmpdir.mkdir("penv"))
+    assert penv.create_virtualenv(penv_path)
+
+    python_exe = os.path.join(penv_path, "bin", "python")
+    if util.IS_WINDOWS:
+        python_exe = os.path.join(penv_path, "Scripts", "python.exe")
+
+    assert penv.install_pip(penv_path, python_exe)

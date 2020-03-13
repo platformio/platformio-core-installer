@@ -203,7 +203,9 @@ def install_pip(penv_dir, python_exe):
         log.debug("Installing pip")
         subprocess.check_output([python_exe, get_pip_path])
         log.info("Pip has been successfully updated!")
+        return True
     except Exception as e:  # pylint:disable=broad-except
         log.debug(
             "Could not install pip. Error: %s", str(e),
         )
+        return False
