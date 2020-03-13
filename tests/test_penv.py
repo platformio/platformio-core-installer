@@ -19,10 +19,7 @@ from pioinstaller import penv, python, util
 
 
 def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
-    def get_installer_script():
-        return pio_installer_script
-
-    monkeypatch.setattr(util, "get_installer_script", get_installer_script)
+    monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
     penv_path = str(tmpdir.mkdir("penv"))
     assert penv.create_virtualenv(penv_path)
@@ -37,10 +34,7 @@ def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
 
 
 def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
-    def get_installer_script():
-        return pio_installer_script
-
-    monkeypatch.setattr(util, "get_installer_script", get_installer_script)
+    monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
     penv_path = str(tmpdir.mkdir("penv"))
 
