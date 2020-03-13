@@ -37,7 +37,7 @@ def is_conda():
 
 def is_portable():
     try:
-        import winpython  # pylint:disable=import-outside-toplevel, unused-import
+        import winpython  # pylint:disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable
 
         return True
     except:  # pylint:disable=bare-except
