@@ -84,7 +84,7 @@ def find_compatible_pythons():
                 subprocess.check_output(
                     [
                         os.path.join(path, exe),
-                        os.path.abspath(sys.argv[0]),
+                        util.get_installer_script(),
                         "--no-shutdown-piohome",
                         "--silent",
                         "check",
