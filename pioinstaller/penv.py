@@ -36,6 +36,7 @@ PORTABLE_PYTHON_32 = (
     "https://dl.bintray.com/platformio/dl-misc/"
     "python-portable-windows_x86-3.7.6.tar.gz"
 )
+PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 
 
 def get_penv_dir():
@@ -74,6 +75,7 @@ def download_portable_python():
     link = PORTABLE_PYTHON_64 if sys.maxsize > 2 ** 32 else PORTABLE_PYTHON_32
 
     archive_path = os.path.join(core.get_cache_dir(), "portable_python.tar.gz")
+    log.debug("Downloading portable python for Windows")
     util.download_file(link, archive_path)
 
     python_path = os.path.join(core.get_core_dir(), "python37")
@@ -185,3 +187,23 @@ def create_virtualenv(penv_dir=None):
         "Could not create PIO Core Virtual Environment. "
         "Please create it manually -> http://bit.ly/pio-core-virtualenv"
     )
+
+
+def install_pip(penv_dir, python_exe):
+    log.info("Updating pip in virtual environment")
+    try:
+        log.debug("Creating pip.conf file in %s", penv_dir)
+        with open(os.path.join(penv_dir, "pip.conf"), "w") as fp:
+            fp.write("\n".join(["[global]", "user=no"]))
+
+        log.debug("Downloading get-pip.py file")
+        get_pip_path = os.path.join(core.get_cache_dir(), os.path.basename(PIP_URL))
+        util.download_file(PIP_URL, get_pip_path)
+
+        log.debug("Installing pip")
+        subprocess.check_output([python_exe, get_pip_path])
+        log.info("Pip has been successfully updated!")
+    except Exception as e:  # pylint:disable=broad-except
+        log.debug(
+            "Could not install pip. Error: %s", str(e),
+        )
