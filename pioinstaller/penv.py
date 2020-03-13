@@ -37,10 +37,11 @@ def get_penv_bin_dir():
     return os.path.join(get_penv_dir(), "Scripts" if util.IS_WINDOWS else "bin")
 
 
-def clean_penv_dir():
+def clean_dir(penv_dir=None):
+    penv_dir = penv_dir or get_penv_dir()
     log.debug("Virtualenv target path cleaning")
     try:
-        return util.rmtree(get_penv_dir())
+        return util.rmtree(penv_dir)
     except:  # pylint: disable=bare-except
         pass
 
@@ -57,8 +58,7 @@ def download_virtualenv_script(dst):
     return util.download_file(VIRTUALENV_URL, venv_path)
 
 
-def create_virtualenv_with_local(python_exe):
-    penv_dir = get_penv_dir()
+def create_virtualenv_with_local(python_exe, penv_dir):
     venv_cmd_options = [
         [python_exe, "-m", "venv", penv_dir],
         [python_exe, "-m", "virtualenv", "-p", python_exe, penv_dir],
@@ -68,7 +68,7 @@ def create_virtualenv_with_local(python_exe):
     ]
     last_error = None
     for command in venv_cmd_options:
-        clean_penv_dir()
+        clean_dir(penv_dir)
         log.debug("Creating virtual environment: %s", " ".join(command))
         try:
             subprocess.check_output(command)
@@ -78,25 +78,27 @@ def create_virtualenv_with_local(python_exe):
     raise last_error  # pylint:disable=raising-bad-type
 
 
-def create_virtualenv_with_download(python_exe):
-    clean_penv_dir()
+def create_virtualenv_with_download(python_exe, penv_dir):
+    clean_dir(penv_dir)
     venv_path = download_virtualenv_script(core.get_cache_dir())
     if not venv_path:
         raise exception.PIOInstallerException("Could not find virtualenv script")
-    command = [python_exe, venv_path, get_penv_dir()]
+    command = [python_exe, venv_path, penv_dir]
     log.debug("Creating virtual environment: %s", " ".join(command))
     subprocess.check_output(command)
-    return get_penv_dir()
+    return penv_dir
 
 
-def create_virtualenv():
-    log.info("Creating a virtual environment at %s", get_penv_dir())
+def create_virtualenv(penv_dir=None):
+    penv_dir = penv_dir or get_penv_dir()
+
+    log.info("Creating a virtual environment at %s", penv_dir)
 
     python_exes = python.find_compatible_pythons()
     for python_exe in python_exes:
         log.debug("Using %s Python for virtual environment.", python_exe)
         try:
-            return create_virtualenv_with_local(python_exe)
+            return create_virtualenv_with_local(python_exe, penv_dir)
         except Exception as e:  # pylint:disable=broad-except
             log.debug(
                 "Could not create virtualenv with local packages"
@@ -104,7 +106,7 @@ def create_virtualenv():
                 str(e),
             )
             try:
-                return create_virtualenv_with_download(python_exe)
+                return create_virtualenv_with_download(python_exe, penv_dir)
             except Exception as e:  # pylint:disable=broad-except
                 log.debug(
                     "Could not create virtualenv with downloaded script. Error: %s",

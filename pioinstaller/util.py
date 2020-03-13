@@ -92,3 +92,7 @@ def unpack_archive(src, dst, mode="r:gz"):
     with tarfile.open(src, mode) as fp:
         fp.extractall(dst)
     return dst
+
+
+def get_installer_script():
+    return os.path.abspath(sys.argv[0])
