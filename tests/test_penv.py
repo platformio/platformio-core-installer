@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import subprocess
 
 from pioinstaller import penv, python, util
@@ -21,9 +22,9 @@ def test_penv_with_default_python(pio_installer_script, tmpdir, mock_functions):
     penv_path = str(tmpdir.mkdir("penv"))
     assert penv.create_virtualenv(penv_path)
 
-    python_exe = util.find_file("python", penv_path)
+    python_exe = os.path.join(penv_path, "bin", "python")
     if util.IS_WINDOWS:
-        python_exe = util.find_file("python.exe", penv_path)
+        python_exe = os.path.join(penv_path, "Scripts", "python.exe")
     assert (
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
@@ -40,9 +41,9 @@ def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, mock_function
 
     assert penv.create_virtualenv_with_download(python_exe, penv_path)
 
-    python_exe = util.find_file("python", penv_path)
+    python_exe = os.path.join(penv_path, "bin", "python")
     if util.IS_WINDOWS:
-        python_exe = util.find_file("python.exe", penv_path)
+        python_exe = os.path.join(penv_path, "Scripts", "python.exe")
     assert (
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
