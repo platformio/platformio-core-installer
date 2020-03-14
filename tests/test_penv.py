@@ -64,7 +64,8 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
     penv_path = str(tmpdir.mkdir("penv"))
-    assert penv.create_virtualenv_with_portable_python(penv_path)
+    python_exe = penv.download_portable_python()
+    assert penv.try_create_virtualenv_with_python_exe(python_exe, penv_path)
 
     python_exe = os.path.join(penv_path, "bin", "python")
     if util.IS_WINDOWS:

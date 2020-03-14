@@ -28,8 +28,10 @@ log = logging.getLogger(__name__)
 
 VIRTUALENV_URL = "https://bootstrap.pypa.io/virtualenv/virtualenv.pyz"
 PORTABLE_PYTHONS = {
-    "windows_x86": "http://...python-portable-windows_x86-3.7.6.tar.gz",
-    "windows_amd64": "http://python-portable-windows_amd64-3.7.6.tar.gz",
+    "windows_x86": "https://dl.bintray.com/platformio/dl-misc/"
+    "python-portable-windows_x86-3.7.6.tar.gz",
+    "windows_amd64": "https://dl.bintray.com/platformio/dl-misc/"
+    "python-portable-windows_amd64-3.7.6.tar.gz",
 }
 PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 
