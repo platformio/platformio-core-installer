@@ -104,11 +104,14 @@ def check():
     if any(s in util.get_pythonexe_path().lower() for s in ("msys", "mingw", "emacs")):
         raise exception.IncompatiblePythonError("Unsupported platform: ")
 
-    if not os.path.isdir(os.path.join(sys.prefix, "Scripts")):
-        raise exception.IncompatiblePythonError("Cannot find Scripts folder")
-
-    if not (sys.version_info >= (3, 5) and __import__("venv")):
-        raise exception.IncompatiblePythonError("Cannot find venv module")
+    try:
+        assert os.path.isdir(os.path.join(sys.prefix, "Scripts")) or (
+            sys.version_info >= (3, 5) and __import__("venv")
+        )
+    except (AssertionError, ImportError):
+        raise exception.IncompatiblePythonError(
+            "Unsupported python without 'Scripts' folder and 'venv' module"
+        )
 
     return True
 

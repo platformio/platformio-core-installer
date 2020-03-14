@@ -163,7 +163,7 @@ class VirtualEnvironmentMaster(object):
         python_version = (
             subprocess.check_output([self.python_exe, "-c", version_code])
             .decode()
-            .replace("\n", "")
+            .strip()
         )
         json_info = {
             "created_on": int(round(time.time())),
