@@ -43,8 +43,9 @@ def get_core_dir():
     return core_dir
 
 
-def get_cache_dir():
-    path = os.path.join(get_core_dir(), ".cache")
+def get_cache_dir(core_dir=None):
+    core_dir = core_dir or get_core_dir()
+    path = os.path.join(core_dir, ".cache")
     if not os.path.isdir(path):
         os.makedirs(path)
     return path

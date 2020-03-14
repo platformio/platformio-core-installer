@@ -45,7 +45,7 @@ def cli(ctx, verbose, shutdown_piohome, silent):
     if not ctx.invoked_subcommand:
         if shutdown_piohome:
             helpers.shutdown_pio_home_servers()
-        penv.create_virtualenv()
+        penv.VirtualEnviroment().create()
 
 
 @cli.command()

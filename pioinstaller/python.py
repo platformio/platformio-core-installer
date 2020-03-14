@@ -18,9 +18,17 @@ import platform
 import subprocess
 import sys
 
-from pioinstaller import exception, util
+from pioinstaller import core, exception, util
 
 log = logging.getLogger(__name__)
+
+
+PORTABLE_PYTHONS = {
+    "windows_x86": "https://dl.bintray.com/platformio/dl-misc/"
+    "python-portable-windows_x86-3.7.6.tar.gz",
+    "windows_amd64": "https://dl.bintray.com/platformio/dl-misc/"
+    "python-portable-windows_amd64-3.7.6.tar.gz",
+}
 
 
 def is_conda():
@@ -43,6 +51,33 @@ def is_portable():
         return True
     except:  # pylint:disable=bare-except
         return False
+
+
+def download_portable(core_dir=None, cache_dir=None):
+    core_dir = core_dir or core.get_core_dir()
+    cache_dir = cache_dir or core.get_cache_dir()
+
+    log.debug("Trying download portable python")
+    link = PORTABLE_PYTHONS.get(util.get_systype())
+    if not link:
+        return None
+    try:
+        log.debug("Downloading portable python...")
+        archive_path = util.download_file(
+            link, os.path.join(cache_dir, os.path.basename(link))
+        )
+
+        python_path = os.path.join(core_dir, "python37")
+        util.safe_clean_dir(python_path)
+        util.safe_create_dir(python_path, raise_exception=True)
+
+        log.debug("Unpacking portable python...")
+        util.unpack_archive(archive_path, python_path)
+        if util.IS_WINDOWS:
+            return os.path.join(python_path, "python.exe")
+        return os.path.join(python_path, "python")
+    except:  # pylint:disable=bare-except
+        log.debug("Could not download portable python")
 
 
 def check():
