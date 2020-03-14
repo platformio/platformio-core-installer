@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import io
+import logging
 import os
 import platform
 import shutil
@@ -23,6 +24,8 @@ import tarfile
 import requests
 
 IS_WINDOWS = sys.platform.lower().startswith("win")
+
+log = logging.getLogger(__name__)
 
 
 def get_source_dir():
@@ -72,15 +75,21 @@ def find_file(name, path):
     return None
 
 
-def create_dir(path):
+def safe_create_dir(path, raise_exception=False):
     try:
         os.makedirs(path)
         return path
-    except:  # pylint:disable=bare-except
-        pass
+    except Exception as e:  # pylint: disable=broad-except
+        if raise_exception:
+            raise e
 
 
-def download_file(url, dst):
+def download_file(url, dst, cache=True):
+    if cache:
+        content_length = requests.head(url).headers.get("Content-Length")
+        if os.path.exists(dst) and content_length == os.path.getsize(dst):
+            log.debug("Getting from cache: %s", dst)
+            return dst
     resp = requests.get(url, stream=True)
     itercontent = resp.iter_content(chunk_size=io.DEFAULT_BUFFER_SIZE)
     with open(dst, "wb") as fp:
@@ -105,3 +114,11 @@ def get_systype():
     if type_ == "windows":
         arch = "amd64" if platform.architecture()[0] == "64bit" else "x86"
     return "%s_%s" % (type_, arch) if arch else type_
+
+
+def safe_clean_dir(path, raise_exception=False):
+    try:
+        return rmtree(path)
+    except Exception as e:  # pylint: disable=broad-except
+        if raise_exception:
+            raise e

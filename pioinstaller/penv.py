@@ -19,8 +19,6 @@ import platform
 import subprocess
 import time
 
-import requests
-
 from pioinstaller import __version__, core, exception, python, util
 
 log = logging.getLogger(__name__)
@@ -47,55 +45,40 @@ def get_penv_bin_dir():
     return os.path.join(get_penv_dir(), "Scripts" if util.IS_WINDOWS else "bin")
 
 
-def clean_dir(penv_dir=None):
-    penv_dir = penv_dir or get_penv_dir()
-    log.debug("Virtualenv target path cleaning")
-    try:
-        return util.rmtree(penv_dir)
-    except:  # pylint: disable=bare-except
-        pass
-
-
-def download_virtualenv_script(dst):
-    venv_path = os.path.join(dst, "virtualenv.pyz")
-
-    content_length = requests.head(VIRTUALENV_URL).headers.get("Content-Length")
-    if os.path.exists(venv_path) and content_length == os.path.getsize(venv_path):
-        log.debug("Virtualenv package archive already exists")
-        return venv_path
-
-    log.debug("Downloading virtualenv package archive")
-    return util.download_file(VIRTUALENV_URL, venv_path)
-
-
 def download_portable_python():
+    log.debug("Trying download portable python")
     link = PORTABLE_PYTHONS.get(util.get_systype())
-
-    archive_path = os.path.join(core.get_cache_dir(), "portable_python.tar.gz")
-    log.debug("Downloading portable python...")
-    util.download_file(link, archive_path)
-
-    python_path = os.path.join(core.get_core_dir(), "python37")
-    if os.path.isdir(python_path):
-        try:
-            util.rmtree(python_path)
-        except:  # pylint: disable=bare-except
-            pass
+    if not link:
+        return None
     try:
-        os.makedirs(python_path)
-    except:  # pylint:disable=bare-except
-        pass
-
-    if util.IS_WINDOWS:
-        return os.path.join(
-            util.unpack_archive(archive_path, python_path), "python.exe"
+        log.debug("Downloading portable python...")
+        archive_path = util.download_file(
+            link, os.path.join(core.get_cache_dir(), os.path.basename(link))
         )
-    return os.path.join(util.unpack_archive(archive_path, python_path), "python")
+
+        python_path = os.path.join(core.get_core_dir(), "python37")
+        util.safe_clean_dir(python_path)
+        util.safe_create_dir(python_path, raise_exception=True)
+
+        log.debug("Unpacking portable python...")
+        util.unpack_archive(archive_path, python_path)
+        if util.IS_WINDOWS:
+            return os.path.join(python_path, "python.exe")
+        return os.path.join(python_path, "python")
+    except:  # pylint:disable=bare-except
+        log.debug("Could not download portable python")
 
 
 def add_state_info(python_exe, penv_dir):
-    output = subprocess.check_output([python_exe, "--version"]).decode()
-    python_version = output.replace("Python ", "").replace("\n", "")
+    version_code = (
+        "import sys; version=sys.version_info; "
+        "print('%d.%d.%d'%(version[0],version[1],version[2]))"
+    )
+    python_version = (
+        subprocess.check_output([python_exe, "-c", version_code])
+        .decode()
+        .replace("\n", "")
+    )
     json_info = {
         "created_on": int(round(time.time())),
         "python": {"path": python_exe, "version": python_version,},
@@ -107,7 +90,7 @@ def add_state_info(python_exe, penv_dir):
     return os.path.join(penv_dir, "state.json")
 
 
-def create_virtualenv_with_local(python_exe, penv_dir):
+def create_virtualenv_with_local_scripts(python_exe, penv_dir):
     venv_cmd_options = [
         [python_exe, "-m", "venv", penv_dir],
         [python_exe, "-m", "virtualenv", "-p", python_exe, penv_dir],
@@ -117,7 +100,7 @@ def create_virtualenv_with_local(python_exe, penv_dir):
     ]
     last_error = None
     for command in venv_cmd_options:
-        clean_dir(penv_dir)
+        util.safe_clean_dir(penv_dir)
         log.debug("Creating virtual environment: %s", " ".join(command))
         try:
             subprocess.check_output(command)
@@ -127,21 +110,26 @@ def create_virtualenv_with_local(python_exe, penv_dir):
     raise last_error  # pylint:disable=raising-bad-type
 
 
-def create_virtualenv_with_download(python_exe, penv_dir):
-    clean_dir(penv_dir)
-    venv_path = download_virtualenv_script(core.get_cache_dir())
-    if not venv_path:
+def create_virtualenv_with_external_script(python_exe, penv_dir):
+    util.safe_clean_dir(penv_dir)
+
+    log.debug("Downloading virtualenv package archive")
+    venv_script_path = util.download_file(
+        VIRTUALENV_URL,
+        os.path.join(core.get_cache_dir(), os.path.basename(VIRTUALENV_URL)),
+    )
+    if not venv_script_path:
         raise exception.PIOInstallerException("Could not find virtualenv script")
-    command = [python_exe, venv_path, penv_dir]
+    command = [python_exe, venv_script_path, penv_dir]
     log.debug("Creating virtual environment: %s", " ".join(command))
     subprocess.check_output(command)
     return penv_dir
 
 
-def try_create_virtualenv_with_python_exe(python_exe, penv_dir):
+def create_virtualenv_with_python_executable(python_exe, penv_dir):
     log.debug("Using %s Python for virtual environment.", python_exe)
     try:
-        return create_virtualenv_with_local(python_exe, penv_dir)
+        return create_virtualenv_with_local_scripts(python_exe, penv_dir)
     except Exception as e:  # pylint:disable=broad-except
         log.debug(
             "Could not create virtualenv with local packages"
@@ -149,7 +137,7 @@ def try_create_virtualenv_with_python_exe(python_exe, penv_dir):
             str(e),
         )
         try:
-            return create_virtualenv_with_download(python_exe, penv_dir)
+            return create_virtualenv_with_external_script(python_exe, penv_dir)
         except Exception as e:  # pylint:disable=broad-except
             log.debug(
                 "Could not create virtualenv with downloaded script. Error: %s", str(e),
@@ -184,9 +172,8 @@ def create_virtualenv(penv_dir=None):
     log.info("Creating a virtual environment at %s", penv_dir)
     python_exe = None
     result_dir = None
-    python_exes = python.find_compatible_pythons()
-    for python_exe in python_exes:
-        result_dir = try_create_virtualenv_with_python_exe(python_exe, penv_dir)
+    for python_exe in python.find_compatible_pythons():
+        result_dir = create_virtualenv_with_python_executable(python_exe, penv_dir)
         if result_dir:
             break
 
@@ -196,7 +183,8 @@ def create_virtualenv(penv_dir=None):
         and not python.is_portable()
     ):
         python_exe = download_portable_python()
-        result_dir = try_create_virtualenv_with_python_exe(python_exe, penv_dir)
+        if python_exe:
+            result_dir = create_virtualenv_with_python_executable(python_exe, penv_dir)
 
     if result_dir:
         add_state_info(python_exe, result_dir)

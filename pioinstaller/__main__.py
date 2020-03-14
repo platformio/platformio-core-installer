@@ -42,9 +42,9 @@ def cli(ctx, verbose, shutdown_piohome, silent):
     log.debug("Platform: %s", platform.platform())
     log.info("Python version: %s", sys.version)
     log.info("Python path: %s", sys.executable)
-    if shutdown_piohome:
-        helpers.shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
+        if shutdown_piohome:
+            helpers.shutdown_pio_home_servers()
         penv.create_virtualenv()
 
 
@@ -70,11 +70,9 @@ def check():
 def python():
     try:
         python_check()
-        click.echo(
-            "The Python %s interpreter is compatible." % util.get_pythonexe_path()
-        )
+        log.info("The Python %s interpreter is compatible.", util.get_pythonexe_path())
     except exception.IncompatiblePythonError as e:
-        log.warning(str(e))
+        raise click.ClickException(str(e))
 
 
 def main():

@@ -47,7 +47,7 @@ def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
         raise Exception("Python executable not found.")
     python_exe = python_exes[0]
 
-    assert penv.create_virtualenv_with_download(python_exe, penv_path)
+    assert penv.create_virtualenv_with_external_script(python_exe, penv_path)
 
     python_exe = os.path.join(penv_path, "bin", "python")
     if util.IS_WINDOWS:
@@ -65,7 +65,7 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
 
     penv_path = str(tmpdir.mkdir("penv"))
     python_exe = penv.download_portable_python()
-    assert penv.try_create_virtualenv_with_python_exe(python_exe, penv_path)
+    assert penv.create_virtualenv_with_python_executable(python_exe, penv_path)
 
     python_exe = os.path.join(penv_path, "bin", "python")
     if util.IS_WINDOWS:
@@ -74,16 +74,3 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
     )
-
-
-def test_installing_pip(pio_installer_script, tmpdir, monkeypatch):
-    monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
-
-    penv_path = str(tmpdir.mkdir("penv"))
-    assert penv.create_virtualenv(penv_path)
-
-    python_exe = os.path.join(penv_path, "bin", "python")
-    if util.IS_WINDOWS:
-        python_exe = os.path.join(penv_path, "Scripts", "python.exe")
-
-    assert penv.install_pip(penv_path, python_exe)

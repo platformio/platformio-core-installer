@@ -14,6 +14,7 @@
 
 import logging
 import os
+import platform
 import subprocess
 import sys
 
@@ -55,7 +56,8 @@ def check():
     ) and not sys.version_info >= (3, 5):
         raise exception.IncompatiblePythonError(
             "Unsupported python version: %s. "
-            "Supported version: >= 2.7.9 and < 3, or >= 3.5" % sys.version,
+            "Supported version: >= 2.7.9 and < 3, or >= 3.5"
+            % platform.python_version(),
         )
 
     # conda check
