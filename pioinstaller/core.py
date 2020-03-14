@@ -15,7 +15,7 @@
 import logging
 import os
 
-from pioinstaller import helpers, penv, util
+from pioinstaller import util
 
 log = logging.getLogger(__name__)
 
@@ -43,29 +43,9 @@ def get_core_dir():
     return core_dir
 
 
-def get_cache_dir(core_dir=None):
-    core_dir = core_dir or get_core_dir()
+def get_cache_dir(path=None):
+    core_dir = path or get_core_dir()
     path = os.path.join(core_dir, ".cache")
     if not os.path.isdir(path):
         os.makedirs(path)
     return path
-
-
-def get_penv_dir(core_dir=None):
-    if os.getenv("PLATFORMIO_PENV_DIR"):
-        return os.getenv("PLATFORMIO_PENV_DIR")
-
-    core_dir = core_dir or get_core_dir()
-    return os.path.join(core_dir, "penv")
-
-
-def get_penv_bin_dir(core_dir=None):
-    return os.path.join(get_penv_dir(core_dir), "Scripts" if util.IS_WINDOWS else "bin")
-
-
-def install_platformio_core(shutdown_piohome=True):
-    if shutdown_piohome:
-        helpers.shutdown_pio_home_servers()
-    penv.VirtualEnviroment(
-        core_dir=get_core_dir(), penv_dir=get_penv_dir(), cache_dir=get_cache_dir()
-    ).create()

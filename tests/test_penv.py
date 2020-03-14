@@ -22,12 +22,10 @@ from pioinstaller import __version__, penv, python, util
 def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    core_dir = tmpdir.mkdir(".platformio")
-    penv_dir = str(core_dir.mkdir("penv"))
-    cache_dir = str(core_dir.mkdir(".cache"))
-    assert penv.VirtualEnviroment(
-        penv_dir=penv_dir, core_dir=str(core_dir), cache_dir=cache_dir
-    ).create()
+    core_dir = str(tmpdir.mkdir(".platformio"))
+
+    penv_dir = penv.VirtualEnvironmentMaster(core_dir=str(core_dir)).create()
+    assert penv_dir
 
     python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:
@@ -44,21 +42,17 @@ def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
 def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    core_dir = tmpdir.mkdir(".platformio")
-    penv_dir = str(core_dir.mkdir("penv"))
-    cache_dir = str(core_dir.mkdir(".cache"))
+    core_dir = str(tmpdir.mkdir(".platformio"))
 
     python_exes = python.find_compatible_pythons()
     if not python_exes:
         raise Exception("Python executable not found.")
     python_exe = python_exes[0]
 
-    assert penv.VirtualEnviroment(
-        penv_dir=penv_dir,
-        core_dir=str(core_dir),
-        cache_dir=cache_dir,
-        python_exe=python_exe,
-    ).create_with_external_script()
+    penv_dir = penv.VirtualEnvironmentMaster(
+        core_dir=core_dir, python_exe=python_exe,
+    ).create_with_remote_venv()
+    assert penv_dir
 
     python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:
@@ -74,17 +68,13 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
         return
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    core_dir = tmpdir.mkdir(".platformio")
-    penv_dir = str(core_dir.mkdir("penv"))
-    cache_dir = str(core_dir.mkdir(".cache"))
+    core_dir = str(tmpdir.mkdir(".platformio"))
 
-    python_exe = python.download_portable(core_dir=str(core_dir), cache_dir=cache_dir)
-    assert penv.VirtualEnviroment(
-        penv_dir=penv_dir,
-        core_dir=str(core_dir),
-        cache_dir=cache_dir,
-        python_exe=python_exe,
+    python_exe = python.download_portable(core_dir=str(core_dir))
+    penv_dir = penv.VirtualEnvironmentMaster(
+        core_dir=core_dir, python_exe=python_exe,
     ).try_create_with_current_python_exe()
+    assert penv_dir
 
     python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:

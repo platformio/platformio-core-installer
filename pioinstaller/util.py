@@ -116,7 +116,7 @@ def get_systype():
     return "%s_%s" % (type_, arch) if arch else type_
 
 
-def safe_clean_dir(path, raise_exception=False):
+def safe_remove_dir(path, raise_exception=False):
     try:
         return rmtree(path)
     except Exception as e:  # pylint: disable=broad-except

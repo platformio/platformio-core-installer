@@ -18,7 +18,7 @@ import platform
 import subprocess
 import sys
 
-from pioinstaller import exception, util
+from pioinstaller import core, exception, util
 
 log = logging.getLogger(__name__)
 
@@ -53,7 +53,8 @@ def is_portable():
         return False
 
 
-def download_portable(core_dir, cache_dir):
+def download_portable(core_dir):
+    cache_dir = core.get_cache_dir(core_dir)
     log.debug("Trying download portable python")
     link = PORTABLE_PYTHONS.get(util.get_systype())
     if not link:
@@ -65,7 +66,7 @@ def download_portable(core_dir, cache_dir):
         )
 
         python_path = os.path.join(core_dir, "python37")
-        util.safe_clean_dir(python_path)
+        util.safe_remove_dir(python_path)
         util.safe_create_dir(python_path, raise_exception=True)
 
         log.debug("Unpacking portable python...")
