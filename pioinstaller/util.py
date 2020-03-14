@@ -14,6 +14,7 @@
 
 import io
 import os
+import platform
 import shutil
 import stat
 import sys
@@ -96,3 +97,11 @@ def unpack_archive(src, dst, mode="r:gz"):
 
 def get_installer_script():
     return os.path.abspath(sys.argv[0])
+
+
+def get_systype():
+    type_ = platform.system().lower()
+    arch = platform.machine().lower()
+    if type_ == "windows":
+        arch = "amd64" if platform.architecture()[0] == "64bit" else "x86"
+    return "%s_%s" % (type_, arch) if arch else type_

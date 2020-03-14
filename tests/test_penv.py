@@ -56,9 +56,6 @@ def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
     )
-    with open(os.path.join(penv_path, "state.json")) as fp:
-        json_info = json.load(fp)
-        assert json_info.get("installer_version") == __version__
 
 
 def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
@@ -76,9 +73,6 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
     )
-    with open(os.path.join(penv_path, "state.json")) as fp:
-        json_info = json.load(fp)
-        assert json_info.get("installer_version") == __version__
 
 
 def test_installing_pip(pio_installer_script, tmpdir, monkeypatch):

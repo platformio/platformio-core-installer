@@ -17,7 +17,6 @@ import logging
 import os
 import platform
 import subprocess
-import sys
 import time
 
 import requests
@@ -28,14 +27,10 @@ log = logging.getLogger(__name__)
 
 
 VIRTUALENV_URL = "https://bootstrap.pypa.io/virtualenv/virtualenv.pyz"
-PORTABLE_PYTHON_64 = (
-    "https://dl.bintray.com/platformio/dl-misc/"
-    "python-portable-windows_amd64-3.7.6.tar.gz"
-)
-PORTABLE_PYTHON_32 = (
-    "https://dl.bintray.com/platformio/dl-misc/"
-    "python-portable-windows_x86-3.7.6.tar.gz"
-)
+PORTABLE_PYTHONS = {
+    "windows_x86": "http://...python-portable-windows_x86-3.7.6.tar.gz",
+    "windows_amd64": "http://python-portable-windows_amd64-3.7.6.tar.gz",
+}
 PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 
 
@@ -72,10 +67,10 @@ def download_virtualenv_script(dst):
 
 
 def download_portable_python():
-    link = PORTABLE_PYTHON_64 if sys.maxsize > 2 ** 32 else PORTABLE_PYTHON_32
+    link = PORTABLE_PYTHONS.get(util.get_systype())
 
     archive_path = os.path.join(core.get_cache_dir(), "portable_python.tar.gz")
-    log.debug("Downloading portable python for Windows")
+    log.debug("Downloading portable python...")
     util.download_file(link, archive_path)
 
     python_path = os.path.join(core.get_core_dir(), "python37")
@@ -89,7 +84,11 @@ def download_portable_python():
     except:  # pylint:disable=bare-except
         pass
 
-    return os.path.join(util.unpack_archive(archive_path, python_path), "python.exe")
+    if util.IS_WINDOWS:
+        return os.path.join(
+            util.unpack_archive(archive_path, python_path), "python.exe"
+        )
+    return os.path.join(util.unpack_archive(archive_path, python_path), "python")
 
 
 def add_state_info(python_exe, penv_dir):
@@ -99,7 +98,7 @@ def add_state_info(python_exe, penv_dir):
         "created_on": int(round(time.time())),
         "python": {"path": python_exe, "version": python_version,},
         "installer_version": __version__,
-        "os": platform.platform(),
+        "platform": platform.platform(),
     }
     with open(os.path.join(penv_dir, "state.json"), "w") as fp:
         json.dump(json_info, fp)
@@ -120,7 +119,6 @@ def create_virtualenv_with_local(python_exe, penv_dir):
         log.debug("Creating virtual environment: %s", " ".join(command))
         try:
             subprocess.check_output(command)
-            add_state_info(python_exe, penv_dir)
             return penv_dir
         except Exception as e:  # pylint:disable=broad-except
             last_error = e
@@ -135,77 +133,79 @@ def create_virtualenv_with_download(python_exe, penv_dir):
     command = [python_exe, venv_path, penv_dir]
     log.debug("Creating virtual environment: %s", " ".join(command))
     subprocess.check_output(command)
-    add_state_info(python_exe, penv_dir)
     return penv_dir
 
 
-def create_virtualenv_with_portable_python(penv_dir):
-    python_exe = download_portable_python()
-    clean_dir(penv_dir)
-    venv_path = download_virtualenv_script(core.get_cache_dir())
-    if not venv_path:
-        raise exception.PIOInstallerException("Could not find virtualenv script")
-    command = [python_exe, venv_path, penv_dir]
-    log.debug("Creating virtual environment: %s", " ".join(command))
-    subprocess.check_output(command)
-    add_state_info(python_exe, penv_dir)
-    return penv_dir
-
-
-def create_virtualenv(penv_dir=None):
-    penv_dir = penv_dir or get_penv_dir()
-
-    log.info("Creating a virtual environment at %s", penv_dir)
-
-    python_exes = python.find_compatible_pythons()
-    for python_exe in python_exes:
-        log.debug("Using %s Python for virtual environment.", python_exe)
+def try_create_virtualenv_with_python_exe(python_exe, penv_dir):
+    log.debug("Using %s Python for virtual environment.", python_exe)
+    try:
+        return create_virtualenv_with_local(python_exe, penv_dir)
+    except Exception as e:  # pylint:disable=broad-except
+        log.debug(
+            "Could not create virtualenv with local packages"
+            " Trying download virtualenv script and using it. Error: %s",
+            str(e),
+        )
         try:
-            return create_virtualenv_with_local(python_exe, penv_dir)
-        except Exception as e:  # pylint:disable=broad-except
-            log.debug(
-                "Could not create virtualenv with local packages"
-                " Trying download virtualenv script and using it. Error: %s",
-                str(e),
-            )
-            try:
-                return create_virtualenv_with_download(python_exe, penv_dir)
-            except Exception as e:  # pylint:disable=broad-except
-                log.debug(
-                    "Could not create virtualenv with downloaded script. Error: %s",
-                    str(e),
-                )
-
-    if util.IS_WINDOWS and not python.is_portable():
-        try:
-            return create_virtualenv_with_portable_python(penv_dir)
+            return create_virtualenv_with_download(python_exe, penv_dir)
         except Exception as e:  # pylint:disable=broad-except
             log.debug(
                 "Could not create virtualenv with downloaded script. Error: %s", str(e),
             )
-    raise exception.PIOInstallerException(
-        "Could not create PIO Core Virtual Environment. "
-        "Please create it manually -> http://bit.ly/pio-core-virtualenv"
-    )
 
 
 def install_pip(penv_dir, python_exe):
-    log.info("Updating pip in virtual environment")
+    log.info("Updating Python package manager (PIP) in a virtual environment")
     try:
         log.debug("Creating pip.conf file in %s", penv_dir)
         with open(os.path.join(penv_dir, "pip.conf"), "w") as fp:
             fp.write("\n".join(["[global]", "user=no"]))
 
-        log.debug("Downloading get-pip.py file")
+        log.debug("Downloading 'get-pip.py' installer...")
         get_pip_path = os.path.join(core.get_cache_dir(), os.path.basename(PIP_URL))
         util.download_file(PIP_URL, get_pip_path)
 
         log.debug("Installing pip")
         subprocess.check_output([python_exe, get_pip_path])
-        log.info("Pip has been successfully updated!")
+        log.info("PIP has been successfully updated!")
         return True
     except Exception as e:  # pylint:disable=broad-except
         log.debug(
             "Could not install pip. Error: %s", str(e),
         )
         return False
+
+
+def create_virtualenv(penv_dir=None):
+    penv_dir = penv_dir or get_penv_dir()
+
+    log.info("Creating a virtual environment at %s", penv_dir)
+    python_exe = None
+    result_dir = None
+    python_exes = python.find_compatible_pythons()
+    for python_exe in python_exes:
+        result_dir = try_create_virtualenv_with_python_exe(python_exe, penv_dir)
+        if result_dir:
+            break
+
+    if (
+        not result_dir
+        and util.get_systype() in PORTABLE_PYTHONS
+        and not python.is_portable()
+    ):
+        python_exe = download_portable_python()
+        result_dir = try_create_virtualenv_with_python_exe(python_exe, penv_dir)
+
+    if result_dir:
+        add_state_info(python_exe, result_dir)
+        log.info("Virtual environment has been successfully created!")
+        python_exe = os.path.join(result_dir, "bin", "python")
+        if util.IS_WINDOWS:
+            python_exe = os.path.join(result_dir, "Scripts", "python.exe")
+        install_pip(result_dir, python_exe)
+        return python_exe
+
+    raise exception.PIOInstallerException(
+        "Could not create PIO Core Virtual Environment. "
+        "Please create it manually -> http://bit.ly/pio-core-virtualenv"
+    )

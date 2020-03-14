@@ -45,12 +45,7 @@ def cli(ctx, verbose, shutdown_piohome, silent):
     if shutdown_piohome:
         helpers.shutdown_pio_home_servers()
     if not ctx.invoked_subcommand:
-        penv_path = penv.create_virtualenv()
-        log.info("Virtual environment has been successfully created!")
-        python_exe = os.path.join(penv_path, "bin", "python")
-        if util.IS_WINDOWS:
-            python_exe = os.path.join(penv_path, "Scripts", "python.exe")
-        penv.install_pip(penv_path, python_exe)
+        penv.create_virtualenv()
 
 
 @cli.command()
