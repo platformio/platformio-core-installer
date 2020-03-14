@@ -29,7 +29,7 @@ VIRTUALENV_URL = "https://bootstrap.pypa.io/virtualenv/virtualenv.pyz"
 PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 
 
-class VirtualEnviroment:
+class VirtualEnviroment(object):
     def __init__(self, core_dir, penv_dir, cache_dir, python_exe=None):
         self.core_dir = core_dir
         self.penv_dir = penv_dir
