@@ -19,7 +19,7 @@ import sys
 
 import click
 
-from pioinstaller import __title__, __version__, exception, helpers, penv, util
+from pioinstaller import __title__, __version__, core, exception, util
 from pioinstaller.pack import packer
 from pioinstaller.python import check as python_check
 
@@ -43,9 +43,7 @@ def cli(ctx, verbose, shutdown_piohome, silent):
     log.info("Python version: %s", sys.version)
     log.info("Python path: %s", sys.executable)
     if not ctx.invoked_subcommand:
-        if shutdown_piohome:
-            helpers.shutdown_pio_home_servers()
-        penv.VirtualEnviroment().create()
+        core.install_platformio_core(shutdown_piohome)
 
 
 @cli.command()

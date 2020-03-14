@@ -19,7 +19,7 @@ import platform
 import subprocess
 import time
 
-from pioinstaller import __version__, core, exception, python, util
+from pioinstaller import __version__, exception, python, util
 
 log = logging.getLogger(__name__)
 
@@ -29,23 +29,11 @@ VIRTUALENV_URL = "https://bootstrap.pypa.io/virtualenv/virtualenv.pyz"
 PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 
 
-def get_penv_dir(core_dir=None):
-    if os.getenv("PLATFORMIO_PENV_DIR"):
-        return os.getenv("PLATFORMIO_PENV_DIR")
-
-    core_dir = core_dir or core.get_core_dir()
-    return os.path.join(core_dir, "penv")
-
-
-def get_penv_bin_dir(core_dir=None):
-    return os.path.join(get_penv_dir(core_dir), "Scripts" if util.IS_WINDOWS else "bin")
-
-
 class VirtualEnviroment:
-    def __init__(self, penv_dir=None, cache_dir=None, core_dir=None, python_exe=None):
-        self.core_dir = core_dir or core.get_core_dir()
-        self.penv_dir = penv_dir or get_penv_dir(self.core_dir)
-        self.cache_dir = cache_dir or core.get_cache_dir(self.core_dir)
+    def __init__(self, core_dir, penv_dir, cache_dir, python_exe=None):
+        self.core_dir = core_dir
+        self.penv_dir = penv_dir
+        self.cache_dir = cache_dir
         self.python_exe = python_exe
         self.result_dir = None
 
