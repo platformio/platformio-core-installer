@@ -14,8 +14,11 @@
 
 import logging
 import multiprocessing
+import subprocess
 
 import requests
+
+from pioinstaller import exception
 
 HTTP_HOST = "127.0.0.1"
 HTTP_PORT_BEGIN = 8008
@@ -41,3 +44,11 @@ def shutdown_pio_home_servers():
     proc.join(10)
     proc.terminate()
     return True
+
+
+def install_pio_home(platformio_exe):
+    try:
+        subprocess.check_output([platformio_exe, "home", "--host", "__do_not_start__"])
+        return True
+    except Exception as e:  # pylint:disable=broad-except
+        raise exception.PIOInstallerException("Could not install PIO Home: %s" % str(e))

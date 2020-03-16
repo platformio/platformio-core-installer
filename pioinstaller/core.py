@@ -83,5 +83,13 @@ def install_platformio_core(shutdown_piohome=True, develop=False):
         raise exception.PIOInstallerException(
             "Could not install PlatformIO Core: %s" % error
         )
+    platformio_exe = os.path.join(
+        penv.get_penv_bin_dir(penv_dir),
+        "platformio.exe" if util.IS_WINDOWS else "platformio",
+    )
+    try:
+        home.install_pio_home(platformio_exe)
+    except Exception as e:  # pylint:disable=broad-except
+        log.debug(e)
     log.info("PlatformIO Core has been successfully installed!")
     return True
