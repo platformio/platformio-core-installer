@@ -53,7 +53,7 @@ def get_cache_dir(path=None):
     return path
 
 
-def install_platformio_core(shutdown_piohome=True, develop_ver=False):
+def install_platformio_core(shutdown_piohome=True, develop=False):
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
 
@@ -65,11 +65,11 @@ def install_platformio_core(shutdown_piohome=True, develop_ver=False):
         penv.get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
     )
     command = [python_exe, "-m", "pip", "install", "-U"]
-    if develop_ver:
-        log.info("Installing develop version of platformio core")
+    if develop:
+        log.info("Installing a development version of PlatformIO Core")
         command.append(PIO_CORE_DEVELOP_URL)
     else:
-        log.info("Installing platformio core")
+        log.info("Installing PlatformIO Core")
         command.append("platformio")
     try:
         subprocess.check_output(command)
@@ -80,6 +80,8 @@ def install_platformio_core(shutdown_piohome=True, develop_ver=False):
                 "If you have antivirus/firewall/defender software in a system,"
                 " try to disable it for a while.\n %s" % error
             )
-        raise exception.PIOInstallerException("Could not install PIO Core: %s" % error)
-    log.info("Platformio core has been successfully installed!")
+        raise exception.PIOInstallerException(
+            "Could not install PlatformIO Core: %s" % error
+        )
+    log.info("PlatformIO Core has been successfully installed!")
     return True
