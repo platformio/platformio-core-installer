@@ -15,7 +15,7 @@
 import logging
 import os
 
-from pioinstaller import util
+from pioinstaller import home, util
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +29,6 @@ def get_core_dir():
         return core_dir
 
     win_core_dir = os.path.splitdrive(core_dir)[0] + "\\.platformio"
-
     if not os.path.isdir(win_core_dir):
         try:
             os.makedirs(win_core_dir)
@@ -43,8 +42,19 @@ def get_core_dir():
     return core_dir
 
 
-def get_cache_dir():
-    path = os.path.join(get_core_dir(), ".cache")
+def get_cache_dir(path=None):
+    core_dir = path or get_core_dir()
+    path = os.path.join(core_dir, ".cache")
     if not os.path.isdir(path):
         os.makedirs(path)
     return path
+
+
+def install_platformio_core(shutdown_piohome=True):
+    # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
+    from pioinstaller import penv
+
+    if shutdown_piohome:
+        home.shutdown_pio_home_servers()
+
+    penv.create_core_penv(get_core_dir())

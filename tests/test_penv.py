@@ -12,42 +12,66 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import os
 import subprocess
 
-from pioinstaller import penv, python, util
+from pioinstaller import __version__, penv, python, util
 
 
 def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    penv_path = str(tmpdir.mkdir("penv"))
-    assert penv.create_virtualenv(penv_path)
+    penv_dir = str(tmpdir.mkdir("penv"))
 
-    python_exe = os.path.join(penv_path, "bin", "python")
+    assert penv.create_core_penv(penv_dir=penv_dir)
+
+    python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:
-        python_exe = os.path.join(penv_path, "Scripts", "python.exe")
+        python_exe = os.path.join(penv_dir, "Scripts", "python.exe")
     assert (
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
     )
+    with open(os.path.join(penv_dir, "state.json")) as fp:
+        json_info = json.load(fp)
+        assert json_info.get("installer_version") == __version__
 
 
 def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    penv_path = str(tmpdir.mkdir("penv"))
+    penv_dir = str(tmpdir.mkdir("penv"))
 
     python_exes = python.find_compatible_pythons()
     if not python_exes:
         raise Exception("Python executable not found.")
     python_exe = python_exes[0]
 
-    assert penv.create_virtualenv_with_download(python_exe, penv_path)
+    assert penv.create_with_remote_venv(python_exe=python_exe, penv_dir=penv_dir)
 
-    python_exe = os.path.join(penv_path, "bin", "python")
+    python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:
-        python_exe = os.path.join(penv_path, "Scripts", "python.exe")
+        python_exe = os.path.join(penv_dir, "Scripts", "python.exe")
+    assert (
+        subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
+        == 0
+    )
+
+
+def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
+    if not util.IS_WINDOWS:
+        return
+    monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
+
+    penv_dir = str(tmpdir.mkdir("penv"))
+
+    python_exe = python.fetch_portable_python(os.path.dirname(penv_dir))
+    assert penv.create_virtualenv(python_exe=python_exe, penv_dir=penv_dir)
+
+    python_exe = os.path.join(penv_dir, "bin", "python")
+    if util.IS_WINDOWS:
+        python_exe = os.path.join(penv_dir, "Scripts", "python.exe")
     assert (
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0

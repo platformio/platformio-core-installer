@@ -12,4 +12,5 @@ disable=
     duplicate-code,
     bad-continuation,
     fixme,
-    arguments-differ
+    arguments-differ,
+    useless-object-inheritance

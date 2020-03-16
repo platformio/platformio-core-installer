@@ -19,7 +19,7 @@ import sys
 
 import click
 
-from pioinstaller import __title__, __version__, exception, helpers, penv, util
+from pioinstaller import __title__, __version__, core, exception, util
 from pioinstaller.pack import packer
 from pioinstaller.python import check as python_check
 
@@ -42,11 +42,9 @@ def cli(ctx, verbose, shutdown_piohome, silent):
     log.debug("Platform: %s", platform.platform())
     log.info("Python version: %s", sys.version)
     log.info("Python path: %s", sys.executable)
-    if shutdown_piohome:
-        helpers.shutdown_pio_home_servers()
+
     if not ctx.invoked_subcommand:
-        penv.create_virtualenv()
-        log.info("Virtual environment has been successfully created!")
+        core.install_platformio_core(shutdown_piohome)
 
 
 @cli.command()
@@ -71,11 +69,9 @@ def check():
 def python():
     try:
         python_check()
-        click.echo(
-            "The Python %s interpreter is compatible." % util.get_pythonexe_path()
-        )
+        log.info("The Python %s interpreter is compatible.", util.get_pythonexe_path())
     except exception.IncompatiblePythonError as e:
-        log.warning(str(e))
+        raise click.ClickException(str(e))
 
 
 def main():
