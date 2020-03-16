@@ -26,9 +26,9 @@ def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
 
     assert penv.create_core_penv(penv_dir=penv_dir)
 
-    python_exe = os.path.join(penv_dir, "bin", "python")
-    if util.IS_WINDOWS:
-        python_exe = os.path.join(penv_dir, "Scripts", "python.exe")
+    python_exe = os.path.join(
+        penv.get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
+    )
     assert (
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
@@ -50,9 +50,9 @@ def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
 
     assert penv.create_with_remote_venv(python_exe=python_exe, penv_dir=penv_dir)
 
-    python_exe = os.path.join(penv_dir, "bin", "python")
-    if util.IS_WINDOWS:
-        python_exe = os.path.join(penv_dir, "Scripts", "python.exe")
+    python_exe = os.path.join(
+        penv.get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
+    )
     assert (
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0
@@ -69,9 +69,9 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
     python_exe = python.fetch_portable_python(os.path.dirname(penv_dir))
     assert penv.create_virtualenv(python_exe=python_exe, penv_dir=penv_dir)
 
-    python_exe = os.path.join(penv_dir, "bin", "python")
-    if util.IS_WINDOWS:
-        python_exe = os.path.join(penv_dir, "Scripts", "python.exe")
+    python_exe = os.path.join(
+        penv.get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
+    )
     assert (
         subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
         == 0

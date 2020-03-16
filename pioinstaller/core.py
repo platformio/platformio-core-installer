@@ -14,10 +14,13 @@
 
 import logging
 import os
+import subprocess
 
-from pioinstaller import home, util
+from pioinstaller import exception, home, util
 
 log = logging.getLogger(__name__)
+
+PIO_CORE_DEVELOP_URL = "https://github.com/platformio/platformio/archive/develop.zip"
 
 
 def get_core_dir():
@@ -50,11 +53,35 @@ def get_cache_dir(path=None):
     return path
 
 
-def install_platformio_core(shutdown_piohome=True):
+def install_platformio_core(shutdown_piohome=True, develop=False):
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
 
     if shutdown_piohome:
         home.shutdown_pio_home_servers()
 
-    penv.create_core_penv(get_core_dir())
+    penv_dir = penv.create_core_penv()
+    python_exe = os.path.join(
+        penv.get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
+    )
+    command = [python_exe, "-m", "pip", "install", "-U"]
+    if develop:
+        log.info("Installing a development version of PlatformIO Core")
+        command.append(PIO_CORE_DEVELOP_URL)
+    else:
+        log.info("Installing PlatformIO Core")
+        command.append("platformio")
+    try:
+        subprocess.check_output(command)
+    except Exception as e:  # pylint:disable=broad-except
+        error = str(e)
+        if util.IS_WINDOWS:
+            error = (
+                "If you have antivirus/firewall/defender software in a system,"
+                " try to disable it for a while.\n %s" % error
+            )
+        raise exception.PIOInstallerException(
+            "Could not install PlatformIO Core: %s" % error
+        )
+    log.info("PlatformIO Core has been successfully installed!")
+    return True
