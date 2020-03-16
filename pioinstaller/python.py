@@ -65,15 +65,15 @@ def download_portable(core_dir):
             url, os.path.join(cache_dir, os.path.basename(url))
         )
 
-        python_path = os.path.join(core_dir, "python37")
-        util.safe_remove_dir(python_path)
-        util.safe_create_dir(python_path, raise_exception=True)
+        python_dir = os.path.join(core_dir, "python37")
+        util.safe_remove_dir(python_dir)
+        util.safe_create_dir(python_dir, raise_exception=True)
 
         log.debug("Unpacking portable python...")
-        util.unpack_archive(archive_path, python_path)
+        util.unpack_archive(archive_path, python_dir)
         if util.IS_WINDOWS:
-            return os.path.join(python_path, "python.exe")
-        return os.path.join(python_path, "python")
+            return os.path.join(python_dir, "python.exe")
+        return os.path.join(python_dir, "python")
     except:  # pylint:disable=bare-except
         log.debug("Could not download portable python")
 
@@ -102,7 +102,10 @@ def check():
 
     # windows check
     if any(s in util.get_pythonexe_path().lower() for s in ("msys", "mingw", "emacs")):
-        raise exception.IncompatiblePythonError("Unsupported platform: ")
+        raise exception.IncompatiblePythonError(
+            "Unsupported environments: msys, mingw, emacs >> %s"
+            % util.get_pythonexe_path(),
+        )
 
     try:
         assert os.path.isdir(os.path.join(sys.prefix, "Scripts")) or (
@@ -119,7 +122,7 @@ def check():
 def find_compatible_pythons():
     exenames = ["python3", "python", "python2"]
     if util.IS_WINDOWS:
-        exenames = ["python.exe"]
+        exenames = ["%s.exe" % item for item in exenames]
     log.debug("Current environment PATH %s", os.getenv("PATH"))
     candidates = []
     for exe in exenames:
