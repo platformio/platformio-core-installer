@@ -90,8 +90,10 @@ def download_file(url, dst, cache=True):
         if os.path.isfile(dst) and content_length == os.path.getsize(dst):
             log.debug("Getting from cache: %s", dst)
             return dst
+
     resp = requests.get(url, stream=True)
     itercontent = resp.iter_content(chunk_size=io.DEFAULT_BUFFER_SIZE)
+    safe_create_dir(os.path.dirname(dst))
     with open(dst, "wb") as fp:
         for chunk in itercontent:
             fp.write(chunk)

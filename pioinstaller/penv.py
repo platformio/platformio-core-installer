@@ -40,13 +40,14 @@ def get_penv_bin_dir(path=None):
     return os.path.join(get_penv_dir(path), "Scripts" if util.IS_WINDOWS else "bin")
 
 
-def create_virtualenv(core_dir=None):
-    penv_dir = get_penv_dir(core_dir)
+def create_core_penv(penv_dir=None):
+    penv_dir = penv_dir or get_penv_dir()
+
     log.info("Creating a virtual environment at %s", penv_dir)
 
     result_dir = None
     for python_exe in python.find_compatible_pythons():
-        result_dir = try_create_with_current_python_exe(python_exe, penv_dir, core_dir)
+        result_dir = create_virtualenv(python_exe, penv_dir)
         if result_dir:
             break
 
@@ -55,11 +56,9 @@ def create_virtualenv(core_dir=None):
         and util.get_systype() in python.PORTABLE_PYTHONS
         and not python.is_portable()
     ):
-        python_exe = python.download_portable(core_dir=core_dir)
+        python_exe = python.fetch_portable_python(os.path.dirname(penv_dir))
         if python_exe:
-            result_dir = try_create_with_current_python_exe(
-                python_exe, penv_dir, core_dir
-            )
+            result_dir = create_virtualenv(python_exe, penv_dir)
 
     if not result_dir:
         raise exception.PIOInstallerException(
@@ -72,12 +71,12 @@ def create_virtualenv(core_dir=None):
         python_exe = os.path.join(result_dir, "Scripts", "python.exe")
 
     add_state_info(python_exe, penv_dir)
-    install_pip(python_exe, penv_dir, core_dir)
+    install_pip(python_exe, penv_dir)
     log.info("Virtual environment has been successfully created!")
     return result_dir
 
 
-def try_create_with_current_python_exe(python_exe, penv_dir, core_dir):
+def create_virtualenv(python_exe, penv_dir):
     log.debug("Using %s Python for virtual environment.", python_exe)
     try:
         return create_with_local_venv(python_exe, penv_dir)
@@ -88,7 +87,7 @@ def try_create_with_current_python_exe(python_exe, penv_dir, core_dir):
             str(e),
         )
         try:
-            return create_with_remote_venv(python_exe, penv_dir, core_dir)
+            return create_with_remote_venv(python_exe, penv_dir)
         except Exception as e:  # pylint:disable=broad-except
             log.debug(
                 "Could not create virtualenv with downloaded script. Error: %s", str(e),
@@ -115,13 +114,15 @@ def create_with_local_venv(python_exe, penv_dir):
     raise last_error  # pylint:disable=raising-bad-type
 
 
-def create_with_remote_venv(python_exe, penv_dir, core_dir):
-    cache_dir = core.get_cache_dir(core_dir)
+def create_with_remote_venv(python_exe, penv_dir):
     util.safe_remove_dir(penv_dir)
 
     log.debug("Downloading virtualenv package archive")
     venv_script_path = util.download_file(
-        VIRTUALENV_URL, os.path.join(cache_dir, os.path.basename(VIRTUALENV_URL)),
+        VIRTUALENV_URL,
+        os.path.join(
+            os.path.dirname(penv_dir), "penv-tmp", os.path.basename(VIRTUALENV_URL)
+        ),
     )
     if not venv_script_path:
         raise exception.PIOInstallerException("Could not find virtualenv script")
@@ -150,17 +151,18 @@ def add_state_info(python_exe, penv_dir):
     return os.path.join(penv_dir, "state.json")
 
 
-def install_pip(python_exe, penv_dir, core_dir):
-    cache_dir = core.get_cache_dir(core_dir)
-
+def install_pip(python_exe, penv_dir):
     log.info("Updating Python package manager (PIP) in a virtual environment")
     try:
+
         log.debug("Creating pip.conf file in %s", penv_dir)
         with open(os.path.join(penv_dir, "pip.conf"), "w") as fp:
             fp.write("\n".join(["[global]", "user=no"]))
 
         log.debug("Downloading 'get-pip.py' installer...")
-        get_pip_path = os.path.join(cache_dir, os.path.basename(PIP_URL))
+        get_pip_path = os.path.join(
+            os.path.dirname(penv_dir), "penv-tmp", os.path.basename(PIP_URL)
+        )
         util.download_file(PIP_URL, get_pip_path)
 
         log.debug("Installing pip")

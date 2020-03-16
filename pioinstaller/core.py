@@ -57,4 +57,4 @@ def install_platformio_core(shutdown_piohome=True):
     if shutdown_piohome:
         home.shutdown_pio_home_servers()
 
-    penv.create_virtualenv(get_core_dir())
+    penv.create_core_penv(get_core_dir())

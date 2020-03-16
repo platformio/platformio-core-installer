@@ -18,7 +18,7 @@ import platform
 import subprocess
 import sys
 
-from pioinstaller import core, exception, util
+from pioinstaller import exception, util
 
 log = logging.getLogger(__name__)
 
@@ -53,19 +53,19 @@ def is_portable():
         return False
 
 
-def download_portable(core_dir):
-    cache_dir = core.get_cache_dir(core_dir)
+def fetch_portable_python(dst):
     url = PORTABLE_PYTHONS.get(util.get_systype())
     if not url:
         log.debug("There is no portable Python for %s", util.get_systype())
         return None
     try:
         log.debug("Downloading portable python...")
+
         archive_path = util.download_file(
-            url, os.path.join(cache_dir, os.path.basename(url))
+            url, os.path.join(os.path.join(dst, "penv-tmp"), os.path.basename(url))
         )
 
-        python_dir = os.path.join(core_dir, "python37")
+        python_dir = os.path.join(dst, "python37")
         util.safe_remove_dir(python_dir)
         util.safe_create_dir(python_dir, raise_exception=True)
 

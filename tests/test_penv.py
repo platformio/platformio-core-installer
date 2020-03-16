@@ -22,10 +22,9 @@ from pioinstaller import __version__, penv, python, util
 def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    core_dir = str(tmpdir.mkdir(".platformio"))
+    penv_dir = str(tmpdir.mkdir("penv"))
 
-    penv_dir = penv.create_virtualenv(core_dir=str(core_dir))
-    assert penv_dir
+    assert penv.create_core_penv(penv_dir=penv_dir)
 
     python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:
@@ -42,17 +41,14 @@ def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
 def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    core_dir = tmpdir.mkdir(".platformio")
-    penv_dir = str(core_dir.mkdir("penv"))
+    penv_dir = str(tmpdir.mkdir("penv"))
 
     python_exes = python.find_compatible_pythons()
     if not python_exes:
         raise Exception("Python executable not found.")
     python_exe = python_exes[0]
 
-    assert penv.create_with_remote_venv(
-        python_exe=python_exe, penv_dir=penv_dir, core_dir=str(core_dir),
-    )
+    assert penv.create_with_remote_venv(python_exe=python_exe, penv_dir=penv_dir)
 
     python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:
@@ -68,13 +64,10 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
         return
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    core_dir = tmpdir.mkdir(".platformio")
-    penv_dir = str(core_dir.mkdir("penv"))
+    penv_dir = str(tmpdir.mkdir("penv"))
 
-    python_exe = python.download_portable(core_dir=str(core_dir))
-    assert penv.try_create_with_current_python_exe(
-        python_exe=python_exe, penv_dir=penv_dir, core_dir=str(core_dir),
-    )
+    python_exe = python.fetch_portable_python(os.path.dirname(penv_dir))
+    assert penv.create_virtualenv(python_exe=python_exe, penv_dir=penv_dir)
 
     python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:
