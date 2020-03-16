@@ -24,7 +24,7 @@ def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
 
     core_dir = str(tmpdir.mkdir(".platformio"))
 
-    penv_dir = penv.VirtualEnvironmentMaster(core_dir=str(core_dir)).create()
+    penv_dir = penv.create_virtualenv(core_dir=str(core_dir))
     assert penv_dir
 
     python_exe = os.path.join(penv_dir, "bin", "python")
@@ -42,17 +42,17 @@ def test_penv_with_default_python(pio_installer_script, tmpdir, monkeypatch):
 def test_penv_with_downloadable_venv(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    core_dir = str(tmpdir.mkdir(".platformio"))
+    core_dir = tmpdir.mkdir(".platformio")
+    penv_dir = str(core_dir.mkdir("penv"))
 
     python_exes = python.find_compatible_pythons()
     if not python_exes:
         raise Exception("Python executable not found.")
     python_exe = python_exes[0]
 
-    penv_dir = penv.VirtualEnvironmentMaster(
-        core_dir=core_dir, python_exe=python_exe,
-    ).create_with_remote_venv()
-    assert penv_dir
+    assert penv.create_with_remote_venv(
+        python_exe=python_exe, penv_dir=penv_dir, core_dir=str(core_dir),
+    )
 
     python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:
@@ -68,13 +68,13 @@ def test_penv_with_portable_python(pio_installer_script, tmpdir, monkeypatch):
         return
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
 
-    core_dir = str(tmpdir.mkdir(".platformio"))
+    core_dir = tmpdir.mkdir(".platformio")
+    penv_dir = str(core_dir.mkdir("penv"))
 
     python_exe = python.download_portable(core_dir=str(core_dir))
-    penv_dir = penv.VirtualEnvironmentMaster(
-        core_dir=core_dir, python_exe=python_exe,
-    ).try_create_with_current_python_exe()
-    assert penv_dir
+    assert penv.try_create_with_current_python_exe(
+        python_exe=python_exe, penv_dir=penv_dir, core_dir=str(core_dir),
+    )
 
     python_exe = os.path.join(penv_dir, "bin", "python")
     if util.IS_WINDOWS:

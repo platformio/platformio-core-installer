@@ -15,7 +15,7 @@
 import logging
 import os
 
-from pioinstaller import util
+from pioinstaller import home, util
 
 log = logging.getLogger(__name__)
 
@@ -49,3 +49,13 @@ def get_cache_dir(path=None):
     if not os.path.isdir(path):
         os.makedirs(path)
     return path
+
+
+def install_platformio_core(shutdown_piohome=True):
+    # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
+    from pioinstaller import penv
+
+    if shutdown_piohome:
+        home.shutdown_pio_home_servers()
+
+    penv.create_virtualenv(get_core_dir())
