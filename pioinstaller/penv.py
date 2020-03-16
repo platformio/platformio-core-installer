@@ -154,7 +154,6 @@ def add_state_info(python_exe, penv_dir):
 def install_pip(python_exe, penv_dir):
     log.info("Updating Python package manager (PIP) in a virtual environment")
     try:
-
         log.debug("Creating pip.conf file in %s", penv_dir)
         with open(os.path.join(penv_dir, "pip.conf"), "w") as fp:
             fp.write("\n".join(["[global]", "user=no"]))

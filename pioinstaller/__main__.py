@@ -30,9 +30,10 @@ log = logging.getLogger(__name__)
 @click.version_option(__version__, prog_name=__title__)
 @click.option("--verbose", is_flag=True, default=False, help="Verbose output")
 @click.option("--shutdown-piohome/--no-shutdown-piohome", is_flag=True, default=True)
+@click.option("--dev", is_flag=True, default=False)
 @click.option("--silent/--no-silent", is_flag=True, default=False)
 @click.pass_context
-def cli(ctx, verbose, shutdown_piohome, silent):
+def cli(ctx, verbose, shutdown_piohome, dev, silent):
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
     elif silent:
@@ -44,7 +45,10 @@ def cli(ctx, verbose, shutdown_piohome, silent):
     log.info("Python path: %s", sys.executable)
 
     if not ctx.invoked_subcommand:
-        core.install_platformio_core(shutdown_piohome)
+        try:
+            core.install_platformio_core(shutdown_piohome, dev)
+        except exception.PIOInstallerException as e:
+            raise click.ClickException(str(e))
 
 
 @cli.command()
