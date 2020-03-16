@@ -29,7 +29,6 @@ def get_core_dir():
         return core_dir
 
     win_core_dir = os.path.splitdrive(core_dir)[0] + "\\.platformio"
-
     if not os.path.isdir(win_core_dir):
         try:
             os.makedirs(win_core_dir)

@@ -87,7 +87,7 @@ def safe_create_dir(path, raise_exception=False):
 def download_file(url, dst, cache=True):
     if cache:
         content_length = requests.head(url).headers.get("Content-Length")
-        if os.path.exists(dst) and content_length == os.path.getsize(dst):
+        if os.path.isfile(dst) and content_length == os.path.getsize(dst):
             log.debug("Getting from cache: %s", dst)
             return dst
     resp = requests.get(url, stream=True)
@@ -98,8 +98,9 @@ def download_file(url, dst, cache=True):
     return dst
 
 
-def unpack_archive(src, dst, mode="r:gz"):
-    with tarfile.open(src, mode) as fp:
+def unpack_archive(src, dst):
+    assert src.endswith("tar.gz")
+    with tarfile.open(src, mode="r:gz") as fp:
         fp.extractall(dst)
     return dst
 

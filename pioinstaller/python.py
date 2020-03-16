@@ -55,14 +55,14 @@ def is_portable():
 
 def download_portable(core_dir):
     cache_dir = core.get_cache_dir(core_dir)
-    log.debug("Trying download portable python")
-    link = PORTABLE_PYTHONS.get(util.get_systype())
-    if not link:
+    url = PORTABLE_PYTHONS.get(util.get_systype())
+    if not url:
+        log.debug("There is no portable Python for %s", util.get_systype())
         return None
     try:
         log.debug("Downloading portable python...")
         archive_path = util.download_file(
-            link, os.path.join(cache_dir, os.path.basename(link))
+            url, os.path.join(cache_dir, os.path.basename(url))
         )
 
         python_path = os.path.join(core_dir, "python37")
