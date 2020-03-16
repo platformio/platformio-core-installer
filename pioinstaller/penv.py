@@ -37,7 +37,8 @@ def get_penv_dir(path=None):
 
 
 def get_penv_bin_dir(path=None):
-    return os.path.join(get_penv_dir(path), "Scripts" if util.IS_WINDOWS else "bin")
+    penv_dir = path or get_penv_dir()
+    return os.path.join(penv_dir, "Scripts" if util.IS_WINDOWS else "bin")
 
 
 def create_core_penv(penv_dir=None):
@@ -66,10 +67,9 @@ def create_core_penv(penv_dir=None):
             "Please create it manually -> http://bit.ly/pio-core-virtualenv"
         )
 
-    python_exe = os.path.join(result_dir, "bin", "python")
-    if util.IS_WINDOWS:
-        python_exe = os.path.join(result_dir, "Scripts", "python.exe")
-
+    python_exe = os.path.join(
+        get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
+    )
     add_state_info(python_exe, penv_dir)
     install_pip(python_exe, penv_dir)
     log.info("Virtual environment has been successfully created!")
@@ -97,7 +97,7 @@ def create_virtualenv(python_exe, penv_dir):
 def create_with_local_venv(python_exe, penv_dir):
     venv_cmd_options = [
         [python_exe, "-m", "venv", penv_dir],
-        [python_exe, "-m", "virtualenv", "-p", python_exe, penv_dir,],
+        [python_exe, "-m", "virtualenv", "-p", python_exe, penv_dir],
         ["virtualenv", "-p", python_exe, penv_dir],
         [python_exe, "-m", "virtualenv", penv_dir],
         ["virtualenv", penv_dir],
