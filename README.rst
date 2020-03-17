@@ -17,7 +17,7 @@ Standalone installer for `PlatformIO Core <https://docs.platformio.org/en/latest
 Using on Unix (FreeBSD, Linux, macOS, etc.)
 -------------------------------------------
 
-Run this command:
+Please open system terminal and run this command:
 
 .. code-block::
  
@@ -28,7 +28,7 @@ Using on Windows
 
 1. Install the latest Python 3 following `this guide <https://docs.platformio.org/en/latest/faq.html#install-python-interpreter>`_
 2. Download https://raw.githubusercontent.com/platformio/platformio-core-installer/develop/get-platformio.py
-3. Run this command
+3. Please open system terminal (``cmd.exe``) and run this command
 
 .. code-block::
 
