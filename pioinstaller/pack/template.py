@@ -41,7 +41,7 @@ def main():
             fp.write(b64decode(DEPENDENCIES))
 
         sys.path.insert(0, pioinstaller_zip)
-        
+
         try:
             # pylint:disable=protected-access
             import click._unicodefun
@@ -53,7 +53,7 @@ def main():
         except:  # pylint:disable=bare-except
             os.environ["LANG"] = "en_US.UTF-8"
             os.environ["LC_ALL"] = "en_US.UTF-8"
-        
+
         bootstrap()
     finally:
         if tmpdir:
