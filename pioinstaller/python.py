@@ -121,8 +121,9 @@ def check():
 
 
 def find_compatible_pythons(ignore_pythons=None):
-    ignore_pythons = ignore_pythons or []
-    ignore_pythons = [glob.glob(i) for i in ignore_pythons]
+    ignore_list = []
+    for p in ignore_pythons or []:
+        ignore_list.extend(glob.glob(p))
     exenames = ["python3", "python", "python2"]
     if util.IS_WINDOWS:
         exenames = ["%s.exe" % item for item in exenames]
@@ -140,7 +141,7 @@ def find_compatible_pythons(ignore_pythons=None):
             candidates.append(sys.executable)
     result = []
     for item in candidates:
-        if item in ignore_pythons:
+        if item in ignore_list:
             continue
         log.debug("Checking a Python candidate %s", item)
         try:
