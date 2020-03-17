@@ -20,9 +20,10 @@ from pioinstaller import core, penv, util
 
 def test_install_pio_core(pio_installer_script, tmpdir, monkeypatch):
     monkeypatch.setattr(util, "get_installer_script", lambda: pio_installer_script)
+
     core_dir = tmpdir.mkdir(".pio")
     penv_dir = str(core_dir.mkdir("penv"))
-    monkeypatch.setattr(penv, "get_penv_dir", lambda: penv_dir)
+    os.environ["PLATFORMIO_CORE_DIR"] = str(core_dir)
 
     assert core.install_platformio_core(shutdown_piohome=False)
 

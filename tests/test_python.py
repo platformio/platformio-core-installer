@@ -14,13 +14,24 @@
 
 import os
 import subprocess
+import sys
 
 import pytest
 
+from pioinstaller import util
+
 
 def test_check_default_python(pio_installer_script):
+    python_exe = os.path.join(
+        sys.real_prefix if hasattr(sys, "real_prefix") else sys.prefix,
+        "Scripts" if util.IS_WINDOWS else "bin",
+        "python%s.exe" % sys.version_info[0]
+        if util.IS_WINDOWS
+        else "python%s" % sys.version_info[0],
+    )
     assert (
-        subprocess.check_call(["python", pio_installer_script, "check", "python"]) == 0
+        subprocess.check_call([python_exe, pio_installer_script, "check", "python"])
+        == 0
     )
 
 

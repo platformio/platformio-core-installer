@@ -97,6 +97,12 @@ def check():
     if is_conda():
         raise exception.IncompatiblePythonError("Conda is not supported")
 
+    # virtualenv check
+    if hasattr(sys, "real_prefix"):
+        raise exception.IncompatiblePythonError(
+            "Python from virtual environment is not supported"
+        )
+
     if not util.IS_WINDOWS:
         return True
 
