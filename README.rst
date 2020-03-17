@@ -25,7 +25,7 @@ Run this command:
 Using on Windows
 ----------------
 
-1. Install the latest Python 3 following `this guide <https://docs.platformio.org/en/latest/faq.html#install-python-interpreter>`
+1. Install the latest Python 3 following `this guide <https://docs.platformio.org/en/latest/faq.html#install-python-interpreter>`_
 2. Download https://raw.githubusercontent.com/platformio/platformio-core-installer/develop/get-platformio.py
 3. Run this command
 
