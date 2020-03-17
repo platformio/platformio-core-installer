@@ -32,8 +32,11 @@ log = logging.getLogger(__name__)
 @click.option("--shutdown-piohome/--no-shutdown-piohome", is_flag=True, default=True)
 @click.option("--dev", is_flag=True, default=False)
 @click.option("--silent/--no-silent", is_flag=True, default=False)
+@click.option("--ignore-python", multiple=True)
 @click.pass_context
-def cli(ctx, verbose, shutdown_piohome, dev, silent):
+def cli(
+    ctx, verbose, shutdown_piohome, dev, silent, ignore_python
+):  # pylint:disable=too-many-arguments
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
     elif silent:
@@ -46,7 +49,7 @@ def cli(ctx, verbose, shutdown_piohome, dev, silent):
 
     if not ctx.invoked_subcommand:
         try:
-            core.install_platformio_core(shutdown_piohome, dev)
+            core.install_platformio_core(shutdown_piohome, dev, ignore_python)
         except exception.PIOInstallerException as e:
             raise click.ClickException(str(e))
 

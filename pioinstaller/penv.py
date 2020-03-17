@@ -41,13 +41,13 @@ def get_penv_bin_dir(path=None):
     return os.path.join(penv_dir, "Scripts" if util.IS_WINDOWS else "bin")
 
 
-def create_core_penv(penv_dir=None):
+def create_core_penv(penv_dir=None, ignore_pythons=None):
     penv_dir = penv_dir or get_penv_dir()
 
     log.info("Creating a virtual environment at %s", penv_dir)
 
     result_dir = None
-    for python_exe in python.find_compatible_pythons():
+    for python_exe in python.find_compatible_pythons(ignore_pythons):
         result_dir = create_virtualenv(python_exe, penv_dir)
         if result_dir:
             break

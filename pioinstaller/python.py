@@ -119,7 +119,8 @@ def check():
     return True
 
 
-def find_compatible_pythons():
+def find_compatible_pythons(ignore_pythons=None):
+    ignore_pythons = ignore_pythons or []
     exenames = ["python3", "python", "python2"]
     if util.IS_WINDOWS:
         exenames = ["%s.exe" % item for item in exenames]
@@ -137,6 +138,8 @@ def find_compatible_pythons():
             candidates.append(sys.executable)
     result = []
     for item in candidates:
+        if any(i in item for i in ignore_pythons):
+            continue
         log.debug("Checking a Python candidate %s", item)
         try:
             subprocess.check_output(
