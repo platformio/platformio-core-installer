@@ -11,7 +11,8 @@ PlatformIO Core Installer
     :target: https://pypi.python.org/pypi/platformio/
     :alt:  License
 
-Standalone installer for PlatformIO Core.
+
+Standalone installer for `PlatformIO Core <https://docs.platformio.org/en/latest/core/index.html>`_.
 
 Using on Unix (FreeBSD, Linux, macOS, etc.)
 -------------------------------------------
