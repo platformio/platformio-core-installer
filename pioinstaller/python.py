@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import glob
 import logging
 import os
 import platform
@@ -119,7 +120,10 @@ def check():
     return True
 
 
-def find_compatible_pythons():
+def find_compatible_pythons(ignore_pythons=None):
+    ignore_list = []
+    for p in ignore_pythons or []:
+        ignore_list.extend(glob.glob(p))
     exenames = ["python3", "python", "python2"]
     if util.IS_WINDOWS:
         exenames = ["%s.exe" % item for item in exenames]
@@ -137,6 +141,8 @@ def find_compatible_pythons():
             candidates.append(sys.executable)
     result = []
     for item in candidates:
+        if item in ignore_list:
+            continue
         log.debug("Checking a Python candidate %s", item)
         try:
             subprocess.check_output(

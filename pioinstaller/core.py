@@ -53,14 +53,14 @@ def get_cache_dir(path=None):
     return path
 
 
-def install_platformio_core(shutdown_piohome=True, develop=False):
+def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons=None):
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
 
     if shutdown_piohome:
         home.shutdown_pio_home_servers()
 
-    penv_dir = penv.create_core_penv()
+    penv_dir = penv.create_core_penv(ignore_pythons=ignore_pythons)
     python_exe = os.path.join(
         penv.get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
     )
