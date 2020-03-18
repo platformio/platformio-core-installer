@@ -14,20 +14,11 @@ PlatformIO Core Installer
 
 Standalone installer for `PlatformIO Core <https://docs.platformio.org/en/latest/core/index.html>`_.
 
-Using on Unix (FreeBSD, Linux, macOS, etc.)
--------------------------------------------
+Usage
+-----
 
-Please open system terminal and run this command:
-
-.. code-block::
- 
-   python -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core-installer/develop/get-platformio.py)"
-
-Using on Windows
-----------------
-
-1. Install the latest Python 3 following `this guide <https://docs.platformio.org/en/latest/faq.html#install-python-interpreter>`_
-2. Download https://raw.githubusercontent.com/platformio/platformio-core-installer/develop/get-platformio.py
+1. Install the latest Python 3 following `this guide <https://docs.platformio.org/en/latest/faq.html#install-python-interpreter>`_ (for Windows)
+2. Save contents of https://raw.githubusercontent.com/platformio/platformio-core-installer/develop/get-platformio.py to ``get-platformio.py``
 3. Please open system terminal (``cmd.exe``) and run this command
 
 .. code-block::
