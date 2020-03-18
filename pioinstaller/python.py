@@ -150,7 +150,6 @@ def find_compatible_pythons(ignore_pythons=None):
                     item,
                     util.get_installer_script(),
                     "--no-shutdown-piohome",
-                    "--silent",
                     "check",
                     "python",
                 ],

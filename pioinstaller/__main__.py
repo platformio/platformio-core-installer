@@ -31,23 +31,19 @@ log = logging.getLogger(__name__)
 @click.option("--verbose", is_flag=True, default=False, help="Verbose output")
 @click.option("--shutdown-piohome/--no-shutdown-piohome", is_flag=True, default=True)
 @click.option("--dev", is_flag=True, default=False)
-@click.option("--silent/--no-silent", is_flag=True, default=False)
 @click.option("--ignore-python", multiple=True)
 @click.pass_context
 def cli(
-    ctx, verbose, shutdown_piohome, dev, silent, ignore_python
+    ctx, verbose, shutdown_piohome, dev, ignore_python
 ):  # pylint:disable=too-many-arguments
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
-    elif silent:
-        logging.getLogger("pioinstaller").setLevel(logging.ERROR)
-    log.info("Installer version: %s", __version__)
-    log.debug("Invoke: %s", " ".join(sys.argv))
-    log.debug("Platform: %s", platform.platform())
-    log.info("Python version: %s", sys.version)
-    log.info("Python path: %s", sys.executable)
 
     if not ctx.invoked_subcommand:
+        click.echo("Installer version: %s" % __version__)
+        click.echo("Platform: %s" % platform.platform())
+        click.echo("Python version: %s" % sys.version)
+        click.echo("Python path: %s" % sys.executable)
         try:
             core.install_platformio_core(shutdown_piohome, dev, ignore_python)
         except exception.PIOInstallerException as e:

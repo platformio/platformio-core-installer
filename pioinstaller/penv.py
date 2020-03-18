@@ -19,6 +19,8 @@ import platform
 import subprocess
 import time
 
+import click
+
 from pioinstaller import __version__, core, exception, python, util
 
 log = logging.getLogger(__name__)
@@ -44,7 +46,7 @@ def get_penv_bin_dir(path=None):
 def create_core_penv(penv_dir=None, ignore_pythons=None):
     penv_dir = penv_dir or get_penv_dir()
 
-    log.info("Creating a virtual environment at %s", penv_dir)
+    click.echo("Creating a virtual environment at %s" % penv_dir)
 
     result_dir = None
     for python_exe in python.find_compatible_pythons(ignore_pythons):
@@ -72,7 +74,7 @@ def create_core_penv(penv_dir=None, ignore_pythons=None):
     )
     add_state_info(python_exe, penv_dir)
     install_pip(python_exe, penv_dir)
-    log.info("Virtual environment has been successfully created!")
+    click.echo("Virtual environment has been successfully created!")
     return result_dir
 
 
@@ -156,7 +158,7 @@ def add_state_info(python_exe, penv_dir):
 
 
 def install_pip(python_exe, penv_dir):
-    log.info("Updating Python package manager (PIP) in a virtual environment")
+    click.echo("Updating Python package manager (PIP) in a virtual environment")
     try:
         log.debug("Creating pip.conf file in %s", penv_dir)
         with open(os.path.join(penv_dir, "pip.conf"), "w") as fp:
@@ -170,7 +172,7 @@ def install_pip(python_exe, penv_dir):
 
         log.debug("Installing pip")
         subprocess.check_output([python_exe, get_pip_path], stderr=subprocess.PIPE)
-        log.info("PIP has been successfully updated!")
+        click.echo("PIP has been successfully updated!")
         return True
     except Exception as e:  # pylint:disable=broad-except
         log.debug(
