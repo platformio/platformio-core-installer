@@ -145,7 +145,7 @@ def find_compatible_pythons(ignore_pythons=None):
             continue
         log.debug("Checking a Python candidate %s", item)
         try:
-            subprocess.check_output(
+            output = subprocess.check_output(
                 [
                     item,
                     util.get_installer_script(),
@@ -153,10 +153,11 @@ def find_compatible_pythons(ignore_pythons=None):
                     "--silent",
                     "check",
                     "python",
-                ]
+                ],
+                stderr=subprocess.PIPE,
             )
             result.append(item)
-            log.debug("Found a compatible Python %s", item)
+            log.debug(output.decode().strip())
         except:  # pylint:disable=bare-except
-            pass
+            log.debug("Python candidate %s is not compatible", item)
     return result

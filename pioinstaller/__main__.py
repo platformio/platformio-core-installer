@@ -76,7 +76,11 @@ def check():
 def python():
     try:
         python_check()
-        log.info("The Python %s interpreter is compatible.", util.get_pythonexe_path())
+        click.secho(
+            "The Python %s (%s) interpreter is compatible."
+            % (platform.python_version(), util.get_pythonexe_path()),
+            fg="green",
+        )
     except exception.IncompatiblePythonError as e:
         raise click.ClickException(str(e))
 

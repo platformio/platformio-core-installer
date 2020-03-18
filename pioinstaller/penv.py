@@ -107,7 +107,7 @@ def create_with_local_venv(python_exe, penv_dir):
         util.safe_remove_dir(penv_dir)
         log.debug("Creating virtual environment: %s", " ".join(command))
         try:
-            subprocess.check_output(command)
+            subprocess.check_output(command, stderr=subprocess.PIPE)
             return penv_dir
         except Exception as e:  # pylint:disable=broad-except
             last_error = e
@@ -128,7 +128,7 @@ def create_with_remote_venv(python_exe, penv_dir):
         raise exception.PIOInstallerException("Could not find virtualenv script")
     command = [python_exe, venv_script_path, penv_dir]
     log.debug("Creating virtual environment: %s", " ".join(command))
-    subprocess.check_output(command)
+    subprocess.check_output(command, stderr=subprocess.PIPE)
     return penv_dir
 
 
@@ -138,7 +138,11 @@ def add_state_info(python_exe, penv_dir):
         "print('%d.%d.%d'%(version[0],version[1],version[2]))"
     )
     python_version = (
-        subprocess.check_output([python_exe, "-c", version_code]).decode().strip()
+        subprocess.check_output(
+            [python_exe, "-c", version_code], stderr=subprocess.PIPE
+        )
+        .decode()
+        .strip()
     )
     json_info = {
         "created_on": int(round(time.time())),
@@ -165,7 +169,7 @@ def install_pip(python_exe, penv_dir):
         util.download_file(PIP_URL, get_pip_path)
 
         log.debug("Installing pip")
-        subprocess.check_output([python_exe, get_pip_path])
+        subprocess.check_output([python_exe, get_pip_path], stderr=subprocess.PIPE)
         log.info("PIP has been successfully updated!")
         return True
     except Exception as e:  # pylint:disable=broad-except

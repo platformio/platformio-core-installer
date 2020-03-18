@@ -72,7 +72,7 @@ def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons
         log.info("Installing PlatformIO Core")
         command.append("platformio")
     try:
-        subprocess.check_output(command)
+        subprocess.check_output(command, stderr=subprocess.PIPE)
     except Exception as e:  # pylint:disable=broad-except
         error = str(e)
         if util.IS_WINDOWS:
