@@ -83,11 +83,8 @@ def python():
         )
     except (exception.IncompatiblePythonError, exception.DistutilsNotFound) as e:
         raise click.ClickException(
-            click.style(
-                "The Python %s (%s) interpreter is not compatible.\nReason: %s"
-                % (platform.python_version(), util.get_pythonexe_path(), str(e)),
-                fg="red",
-            )
+            "The Python %s (%s) interpreter is not compatible.\nReason: %s"
+            % (platform.python_version(), util.get_pythonexe_path(), str(e))
         )
 
 

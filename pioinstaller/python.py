@@ -166,18 +166,15 @@ def find_compatible_pythons(ignore_pythons=None):
             log.debug(output.decode().strip())
         except subprocess.CalledProcessError as e:  # pylint:disable=bare-except
             error = e.output.decode()
-            if exception.DistutilsNotFound.MESSAGE in error:
+            if "Could not find distutils module" in error:
                 # pylint:disable=line-too-long
                 raise click.ClickException(
-                    click.style(
-                        """Can not install PlatformIO Core due to a missed `distutils` package in your Python installation.
+                    """Can not install PlatformIO Core due to a missed `distutils` package in your Python installation.
 Please install this package manually using the OS package manager. For example:
 
 $ apt-get install python3-distutils
 
 (MAY require administrator access `sudo`)""",
-                        fg="yellow",
-                    )
                 )
             log.debug(error)
     return result
