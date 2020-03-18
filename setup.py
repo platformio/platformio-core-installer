@@ -37,6 +37,7 @@ setup(
         # Core
         "click==7.0",
         "requests==2.23.0",
+        "colorama==0.4.3"
     ],
     packages=find_packages(),
     entry_points={
