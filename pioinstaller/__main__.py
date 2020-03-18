@@ -31,7 +31,11 @@ log = logging.getLogger(__name__)
 @click.option("--verbose", is_flag=True, default=False, help="Verbose output")
 @click.option("--shutdown-piohome/--no-shutdown-piohome", is_flag=True, default=True)
 @click.option("--dev", is_flag=True, default=False)
-@click.option("--ignore-python", multiple=True)
+@click.option(
+    "--ignore-python",
+    multiple=True,
+    help="A path to Python to be ignored (multiple options and unix wildcards are allowed)",
+)
 @click.pass_context
 def cli(
     ctx, verbose, shutdown_piohome, dev, ignore_python
@@ -77,8 +81,14 @@ def python():
             % (platform.python_version(), util.get_pythonexe_path()),
             fg="green",
         )
-    except exception.IncompatiblePythonError as e:
-        raise click.ClickException(str(e))
+    except (exception.IncompatiblePythonError, exception.DistutilsNotFound) as e:
+        raise click.ClickException(
+            click.style(
+                "The Python %s (%s) interpreter is not compatible.\nReason: %s"
+                % (platform.python_version(), util.get_pythonexe_path(), str(e)),
+                fg="red",
+            )
+        )
 
 
 def main():

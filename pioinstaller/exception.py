@@ -28,3 +28,8 @@ class PIOInstallerException(Exception):
 class IncompatiblePythonError(PIOInstallerException):
 
     MESSAGE = "{0}"
+
+
+class DistutilsNotFound(PIOInstallerException):
+
+    MESSAGE = "Could not find distutils module"
