@@ -19,6 +19,8 @@ import platform
 import subprocess
 import sys
 
+import click
+
 from pioinstaller import exception, util
 
 log = logging.getLogger(__name__)
@@ -47,7 +49,7 @@ def is_conda():
 
 def is_portable():
     try:
-        import winpython  # pylint:disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable
+        __import__("winpython")
 
         return True
     except:  # pylint:disable=bare-except
@@ -97,6 +99,11 @@ def check():
     # conda check
     if is_conda():
         raise exception.IncompatiblePythonError("Conda is not supported")
+
+    try:
+        __import__("distutils.command")
+    except ImportError:
+        raise exception.DistutilsNotFound()
 
     if not util.IS_WINDOWS:
         return True
@@ -153,10 +160,21 @@ def find_compatible_pythons(ignore_pythons=None):
                     "check",
                     "python",
                 ],
-                stderr=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
             )
             result.append(item)
             log.debug(output.decode().strip())
-        except:  # pylint:disable=bare-except
-            log.debug("Python candidate %s is not compatible", item)
+        except subprocess.CalledProcessError as e:  # pylint:disable=bare-except
+            error = e.output.decode()
+            if "Could not find distutils module" in error:
+                # pylint:disable=line-too-long
+                raise click.ClickException(
+                    """Can not install PlatformIO Core due to a missed `distutils` package in your Python installation.
+Please install this package manually using the OS package manager. For example:
+
+$ apt-get install python3-distutils
+
+(MAY require administrator access `sudo`)""",
+                )
+            log.debug(error)
     return result
