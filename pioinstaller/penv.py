@@ -19,6 +19,8 @@ import platform
 import subprocess
 import time
 
+import click
+
 from pioinstaller import __version__, core, exception, python, util
 
 log = logging.getLogger(__name__)
@@ -44,7 +46,7 @@ def get_penv_bin_dir(path=None):
 def create_core_penv(penv_dir=None, ignore_pythons=None):
     penv_dir = penv_dir or get_penv_dir()
 
-    log.info("Creating a virtual environment at %s", penv_dir)
+    click.echo("Creating a virtual environment at %s" % penv_dir)
 
     result_dir = None
     for python_exe in python.find_compatible_pythons(ignore_pythons):
@@ -72,7 +74,7 @@ def create_core_penv(penv_dir=None, ignore_pythons=None):
     )
     add_state_info(python_exe, penv_dir)
     install_pip(python_exe, penv_dir)
-    log.info("Virtual environment has been successfully created!")
+    click.echo("Virtual environment has been successfully created!")
     return result_dir
 
 
@@ -107,7 +109,7 @@ def create_with_local_venv(python_exe, penv_dir):
         util.safe_remove_dir(penv_dir)
         log.debug("Creating virtual environment: %s", " ".join(command))
         try:
-            subprocess.check_output(command)
+            subprocess.check_output(command, stderr=subprocess.PIPE)
             return penv_dir
         except Exception as e:  # pylint:disable=broad-except
             last_error = e
@@ -128,7 +130,7 @@ def create_with_remote_venv(python_exe, penv_dir):
         raise exception.PIOInstallerException("Could not find virtualenv script")
     command = [python_exe, venv_script_path, penv_dir]
     log.debug("Creating virtual environment: %s", " ".join(command))
-    subprocess.check_output(command)
+    subprocess.check_output(command, stderr=subprocess.PIPE)
     return penv_dir
 
 
@@ -138,7 +140,11 @@ def add_state_info(python_exe, penv_dir):
         "print('%d.%d.%d'%(version[0],version[1],version[2]))"
     )
     python_version = (
-        subprocess.check_output([python_exe, "-c", version_code]).decode().strip()
+        subprocess.check_output(
+            [python_exe, "-c", version_code], stderr=subprocess.PIPE
+        )
+        .decode()
+        .strip()
     )
     json_info = {
         "created_on": int(round(time.time())),
@@ -152,7 +158,7 @@ def add_state_info(python_exe, penv_dir):
 
 
 def install_pip(python_exe, penv_dir):
-    log.info("Updating Python package manager (PIP) in a virtual environment")
+    click.echo("Updating Python package manager (PIP) in a virtual environment")
     try:
         log.debug("Creating pip.conf file in %s", penv_dir)
         with open(os.path.join(penv_dir, "pip.conf"), "w") as fp:
@@ -165,8 +171,8 @@ def install_pip(python_exe, penv_dir):
         util.download_file(PIP_URL, get_pip_path)
 
         log.debug("Installing pip")
-        subprocess.check_output([python_exe, get_pip_path])
-        log.info("PIP has been successfully updated!")
+        subprocess.check_output([python_exe, get_pip_path], stderr=subprocess.PIPE)
+        click.echo("PIP has been successfully updated!")
         return True
     except Exception as e:  # pylint:disable=broad-except
         log.debug(

@@ -48,7 +48,10 @@ def shutdown_pio_home_servers():
 
 def install_pio_home(platformio_exe):
     try:
-        subprocess.check_output([platformio_exe, "home", "--host", "__do_not_start__"])
+        subprocess.check_output(
+            [platformio_exe, "home", "--host", "__do_not_start__"],
+            stderr=subprocess.PIPE,
+        )
         return True
     except Exception as e:  # pylint:disable=broad-except
         raise exception.PIOInstallerException("Could not install PIO Home: %s" % str(e))

@@ -16,6 +16,8 @@ import logging
 import os
 import subprocess
 
+import click
+
 from pioinstaller import exception, home, util
 
 log = logging.getLogger(__name__)
@@ -66,13 +68,13 @@ def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons
     )
     command = [python_exe, "-m", "pip", "install", "-U"]
     if develop:
-        log.info("Installing a development version of PlatformIO Core")
+        click.echo("Installing a development version of PlatformIO Core")
         command.append(PIO_CORE_DEVELOP_URL)
     else:
-        log.info("Installing PlatformIO Core")
+        click.echo("Installing PlatformIO Core")
         command.append("platformio")
     try:
-        subprocess.check_output(command)
+        subprocess.check_call(command)
     except Exception as e:  # pylint:disable=broad-except
         error = str(e)
         if util.IS_WINDOWS:
@@ -91,5 +93,22 @@ def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons
         home.install_pio_home(platformio_exe)
     except Exception as e:  # pylint:disable=broad-except
         log.debug(e)
-    log.info("PlatformIO Core has been successfully installed!")
+
+    click.secho(
+        "\nPlatformIO Core has been successfully installed into an isolated environment `%s`!\n"
+        % penv_dir,
+        fg="green",
+    )
+    click.secho(
+        "The `platformio.exe` is located at: `%s`\n" % platformio_exe, fg="cyan"
+    )
+    # pylint:disable=line-too-long
+    click.secho(
+        """If you need access to `platformio.exe` from other applications, please install shell commands
+(add PlatformIO Core binary directory `%s` to system environment PATH variable):
+https://docs.platformio.org/en/page/installation.html#install-shell-commands
+"""
+        % penv.get_penv_bin_dir(penv_dir),
+        fg="cyan",
+    )
     return True
