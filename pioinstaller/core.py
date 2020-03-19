@@ -200,7 +200,7 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
     if not last_piocore_version_check:
         return result
 
-    dev = dev or pio_version.prerelease != tuple()
+    dev = dev or pio_version.prerelease
     upgrade_core(platformio_exe, dev)
 
     result["pio_version"] = get_pio_version(platformio)
