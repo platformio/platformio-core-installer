@@ -160,6 +160,8 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
                 % version_requirements
             )
 
+    state = None
+
     with open(os.path.join(penv.get_penv_dir(), "state.json")) as fp:
         state = json.load(fp)
         if state.get("platform") != platform.platform():
@@ -176,32 +178,33 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
             "Could not run `%s --version`.\nError: %s" % (platformio, str(error))
         )
 
+    result = {"platformio_exe": platformio_exe, "version": str(pio_version)}
+
     if not auto_upgrade:
-        return platformio_exe, str(pio_version)
+        return result
 
     time_now = int(round(time.time()))
 
+    last_piocore_version_check = state.get("last_piocore_version_check")
+
     if (
-        state.get("last_piocore_version_check")
-        and (time_now - int(state.get("last_piocore_version_check"))) < UPDATE_INTERVAL
+        last_piocore_version_check
+        and (time_now - int(last_piocore_version_check)) < UPDATE_INTERVAL
     ):
-        return platformio_exe, str(pio_version)
+        return result
 
-    if not state.get("last_piocore_version_check"):
-        state["last_piocore_version_check"] = time_now
-        with open(os.path.join(penv.get_penv_dir(), "state.json"), "w") as fp:
-            json.dump(state, fp)
-        return platformio_exe, str(pio_version)
-
-    dev = dev or pio_version.prerelease != tuple()
-
-    upgrade_core(platformio_exe, dev)
-    state["last_piocore_version_check"] = time_now
     with open(os.path.join(penv.get_penv_dir(), "state.json"), "w") as fp:
+        state["last_piocore_version_check"] = time_now
         json.dump(state, fp)
 
-    pio_version = get_pio_version(platformio)
-    return platformio_exe, str(pio_version)
+    if not last_piocore_version_check:
+        return result
+
+    dev = dev or pio_version.prerelease != tuple()
+    upgrade_core(platformio_exe, dev)
+
+    result["pio_version"] = get_pio_version(platformio)
+    return result
 
 
 def get_pio_version(platformio):
