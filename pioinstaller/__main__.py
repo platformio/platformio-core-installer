@@ -42,7 +42,7 @@ def cli(
 ):  # pylint:disable=too-many-arguments
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
-
+    ctx.obj["dev"] = dev
     if not ctx.invoked_subcommand:
         click.echo("Installer version: %s" % __version__)
         click.echo("Platform: %s" % platform.platform())
@@ -88,8 +88,28 @@ def python():
         )
 
 
+@check.command("core")
+@click.option("--auto-upgrade/--no-auto-upgrade", is_flag=True, default=True)
+@click.option("--version-requirements", default=None)
+@click.pass_context
+def core_check(ctx, auto_upgrade, version_requirements):
+    try:
+        path, version = core.check(
+            dev=ctx.obj.get("dev", False),
+            auto_upgrade=auto_upgrade,
+            version_requirements=version_requirements,
+        )
+        click.secho(
+            "Found compatible PlatformIO Core %s -> %s" % (version, path), fg="green",
+        )
+    except (exception.InvalidPlatformIOCore) as e:
+        raise click.ClickException(
+            "Compatible PlatformIO Core not found.\nReason: %s" % str(e)
+        )
+
+
 def main():
-    return cli()  # pylint: disable=no-value-for-parameter
+    return cli(obj={})  # pylint: disable=no-value-for-parameter, unexpected-keyword-arg
 
 
 if __name__ == "__main__":

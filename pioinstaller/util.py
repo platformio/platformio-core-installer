@@ -16,6 +16,7 @@ import io
 import logging
 import os
 import platform
+import re
 import shutil
 import stat
 import sys
@@ -125,3 +126,7 @@ def safe_remove_dir(path, raise_exception=False):
     except Exception as e:  # pylint: disable=broad-except
         if raise_exception:
             raise e
+
+
+def pepver_to_semver(pepver):
+    return re.sub(r"(\.\d+)\.?(dev|a|b|rc|post)", r"\1-\2.", pepver, 1)
