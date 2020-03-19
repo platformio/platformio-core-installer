@@ -33,3 +33,8 @@ class IncompatiblePythonError(PIOInstallerException):
 class DistutilsNotFound(PIOInstallerException):
 
     MESSAGE = "Could not find distutils module"
+
+
+class InvalidPlatformIOCore(PIOInstallerException):
+
+    MESSAGE = "{0}"
