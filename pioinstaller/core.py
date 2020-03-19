@@ -185,14 +185,14 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
         state = json.load(fp)
         time_now = int(round(time.time()))
         if not state.get("last_piocore_version_check"):
-            pass
+            state["last_piocore_version_check"] = time_now
         elif (
             state.get("last_piocore_version_check")
             and (time_now - int(state.get("last_piocore_version_check")))
             > UPDATE_INTERVAL
         ):
             upgrade_core(platformio_exe, dev)
-        state["last_piocore_version_check"] = time_now
+            state["last_piocore_version_check"] = time_now
         fp.truncate(0)
         fp.seek(0)
         json.dump(state, fp)
