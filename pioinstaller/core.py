@@ -120,7 +120,7 @@ https://docs.platformio.org/en/page/installation.html#install-shell-commands
     return True
 
 
-def check(dev=False, auto_upgrade=False, min_version=None):
+def check(dev=False, auto_upgrade=False, version_requirements=None):
 
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
@@ -146,25 +146,26 @@ def check(dev=False, auto_upgrade=False, min_version=None):
         raise exception.InvalidPlatformIOCore("Could not import PlatformIO module")
 
     pio_version = get_pio_version(platformio)
-    if min_version:
+    if version_requirements:
         try:
-            if pio_version < semantic_version.Version(min_version):
+            if pio_version in semantic_version.Spec(version_requirements):
                 raise exception.InvalidPlatformIOCore(
-                    "PlatformIO Core version %s does not match min-version %s."
-                    % (str(pio_version), min_version)
+                    "PlatformIO Core version %s does not match version requirements %s."
+                    % (str(pio_version), version_requirements)
                 )
         except ValueError:
             click.secho(
-                "Invalid minimum version format: %s. "
-                "More about Semantic Versioning: https://semver.org/" % min_version
+                "Invalid version requirements format: %s. "
+                "More about Semantic Versioning: https://semver.org/"
+                % version_requirements
             )
 
     with open(os.path.join(penv.get_penv_dir(), "state.json")) as fp:
-        json_info = json.load(fp)
-        if json_info.get("platform") != platform.platform():
+        state = json.load(fp)
+        if state.get("platform") != platform.platform():
             raise exception.InvalidPlatformIOCore(
                 "PlatformIO installed using another platform `%s`. Your platform: %s"
-                % (json_info.get("platform"), platform.platform())
+                % (state.get("platform"), platform.platform())
             )
 
     try:
@@ -181,19 +182,20 @@ def check(dev=False, auto_upgrade=False, min_version=None):
     dev = dev or pio_version.prerelease != tuple()
 
     with open(os.path.join(penv.get_penv_dir(), "state.json"), "r+") as fp:
-        json_info = json.load(fp)
+        state = json.load(fp)
         time_now = int(round(time.time()))
-        if not json_info.get("last_piocore_version_check"):
+        if not state.get("last_piocore_version_check"):
             pass
         elif (
-            json_info.get("last_piocore_version_check")
-            and (time_now - int(json_info.get("last_piocore_version_check")))
+            state.get("last_piocore_version_check")
+            and (time_now - int(state.get("last_piocore_version_check")))
             > UPDATE_INTERVAL
         ):
-            update_core(platformio_exe, dev)
-        json_info["last_piocore_version_check"] = time_now
+            upgrade_core(platformio_exe, dev)
+        state["last_piocore_version_check"] = time_now
+        fp.truncate(0)
         fp.seek(0)
-        json.dump(json_info, fp)
+        json.dump(state, fp)
 
     pio_version = get_pio_version(platformio)
 
@@ -214,7 +216,7 @@ def get_pio_version(platformio):
         return platformio.__version__
 
 
-def update_core(platformio_exe, dev=False):
+def upgrade_core(platformio_exe, dev=False):
     command = [platformio_exe, "upgrade"]
     if dev:
         command.append("--dev")

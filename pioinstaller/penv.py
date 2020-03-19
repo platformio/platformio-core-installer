@@ -146,14 +146,14 @@ def add_state_info(python_exe, penv_dir):
         .decode()
         .strip()
     )
-    json_info = {
+    state = {
         "created_on": int(round(time.time())),
         "python": {"path": python_exe, "version": python_version,},
         "installer_version": __version__,
         "platform": platform.platform(),
     }
     with open(os.path.join(penv_dir, "state.json"), "w") as fp:
-        json.dump(json_info, fp)
+        json.dump(state, fp)
     return os.path.join(penv_dir, "state.json")
 
 

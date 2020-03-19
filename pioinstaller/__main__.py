@@ -90,21 +90,21 @@ def python():
 
 @check.command("core")
 @click.option("--auto-upgrade/--no-auto-upgrade", is_flag=True, default=True)
-@click.option("--min-version", default=None)
+@click.option("--version-requirements", default=None)
 @click.pass_context
-def core_check(ctx, auto_upgrade, min_version):
+def core_check(ctx, auto_upgrade, version_requirements):
     try:
         path, version = core.check(
             dev=ctx.obj.get("dev", False),
             auto_upgrade=auto_upgrade,
-            min_version=min_version,
+            version_requirements=version_requirements,
         )
         click.secho(
-            "Found compatbile PlatformIO Core %s -> %s" % (version, path), fg="green",
+            "Found compatible PlatformIO Core %s -> %s" % (version, path), fg="green",
         )
     except (exception.InvalidPlatformIOCore) as e:
         raise click.ClickException(
-            "Compatbile PlatformIO Core not found.\nReason: %s" % str(e)
+            "Compatible PlatformIO Core not found.\nReason: %s" % str(e)
         )
 
 
