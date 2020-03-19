@@ -179,26 +179,28 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
     if not auto_upgrade:
         return platformio_exe, str(pio_version)
 
+    time_now = int(round(time.time()))
+
+    if (
+        state.get("last_piocore_version_check")
+        and (time_now - int(state.get("last_piocore_version_check"))) < UPDATE_INTERVAL
+    ):
+        return platformio_exe, str(pio_version)
+
+    if not state.get("last_piocore_version_check"):
+        state["last_piocore_version_check"] = time_now
+        with open(os.path.join(penv.get_penv_dir(), "state.json"), "w") as fp:
+            json.dump(state, fp)
+        return platformio_exe, str(pio_version)
+
     dev = dev or pio_version.prerelease != tuple()
 
-    with open(os.path.join(penv.get_penv_dir(), "state.json"), "r+") as fp:
-        state = json.load(fp)
-        time_now = int(round(time.time()))
-        if not state.get("last_piocore_version_check"):
-            state["last_piocore_version_check"] = time_now
-        elif (
-            state.get("last_piocore_version_check")
-            and (time_now - int(state.get("last_piocore_version_check")))
-            > UPDATE_INTERVAL
-        ):
-            upgrade_core(platformio_exe, dev)
-            state["last_piocore_version_check"] = time_now
-        fp.truncate(0)
-        fp.seek(0)
+    upgrade_core(platformio_exe, dev)
+    state["last_piocore_version_check"] = time_now
+    with open(os.path.join(penv.get_penv_dir(), "state.json"), "w") as fp:
         json.dump(state, fp)
 
     pio_version = get_pio_version(platformio)
-
     return platformio_exe, str(pio_version)
 
 
