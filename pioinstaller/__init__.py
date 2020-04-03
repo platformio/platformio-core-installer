@@ -25,7 +25,7 @@ __url__ = "https://platformio.org"
 __author__ = "PlatformIO"
 __email__ = "contact@platformio.org"
 
-__license__ = "Apache Software License"
+__license__ = "Apache-2.0"
 __copyright__ = "Copyright 2014-present PlatformIO"
 
 
