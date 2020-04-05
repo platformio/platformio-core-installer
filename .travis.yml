@@ -23,7 +23,6 @@ install:
 
 script:
   - tox -e $TOX_ENV
-  - python --version
   - make test
 
 notifications:

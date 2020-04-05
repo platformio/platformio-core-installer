@@ -18,7 +18,7 @@ install:
 test_script:
   - cmd: tox
   - cmd: python --version
-  - cmd: make test
+  - cmd: py.test --verbose --capture=no --exitfirst tests
 
 notifications:
   - provider: Slack
