@@ -25,3 +25,5 @@ Usage
 
     python get-platformio.py
 
+
+More detailed documentation https://docs.platformio.org/page/core/installation.html#installer-script

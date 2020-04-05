@@ -14,7 +14,7 @@
 
 import logging.config
 
-VERSION = (0, 1, 1)
+VERSION = (0, 2, 0)
 __version__ = ".".join([str(s) for s in VERSION])
 
 __title__ = "platformio-installer"
@@ -25,7 +25,7 @@ __url__ = "https://platformio.org"
 __author__ = "PlatformIO"
 __email__ = "contact@platformio.org"
 
-__license__ = "Apache Software License"
+__license__ = "Apache-2.0"
 __copyright__ = "Copyright 2014-present PlatformIO"
 
 
