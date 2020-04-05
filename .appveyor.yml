@@ -13,10 +13,12 @@ environment:
 install:
   - cmd: git submodule update --init --recursive
   - cmd: SET PATH=C:\MinGW\bin;%PATH%
-  - cmd: pip install --force-reinstall tox
+  - cmd: pip install --force-reinstall tox pytest
 
 test_script:
   - cmd: tox
+  - cmd: python --version
+  - cmd: make test
 
 notifications:
   - provider: Slack

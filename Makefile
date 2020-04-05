@@ -10,7 +10,7 @@ format:
 	black --target-version py27 ./tests
 
 test:
-	py.test --verbose --capture=no --exitfirst -n 1 --dist=loadscope tests
+	py.test --verbose --capture=no --exitfirst tests
 
 before-commit: isort format lint test
 
