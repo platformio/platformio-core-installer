@@ -12,18 +12,10 @@ PlatformIO Core Installer
     :alt:  License
 
 
-Standalone installer for `PlatformIO Core <https://docs.platformio.org/en/latest/core/index.html>`_.
+A standalone installer for `PlatformIO Core <https://docs.platformio.org/page/core/index.html>`_.
 
 Usage
 -----
 
-1. Install the latest Python 3 following `this guide <https://docs.platformio.org/en/latest/faq.html#install-python-interpreter>`_ (for Windows)
-2. Save contents of https://raw.githubusercontent.com/platformio/platformio-core-installer/develop/get-platformio.py to ``get-platformio.py``
-3. Please open system terminal (``cmd.exe``) and run this command
-
-.. code-block::
-
-    python get-platformio.py
-
-
-More detailed documentation https://docs.platformio.org/page/core/installation.html#installer-script
+* `Installation Guide <https://docs.platformio.org/page/core/installation.html>`_
+* `Integration with custom applications (extensions, plugins) <https://docs.platformio.org/page/core/installation.htmll#integration-with-custom-applications-extensions-plugins>`_.
