@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import json
 import logging
 import os
@@ -23,7 +24,7 @@ import time
 import click
 import semantic_version
 
-from pioinstaller import exception, home, util
+from pioinstaller import __version__, exception, home, util
 
 log = logging.getLogger(__name__)
 
@@ -178,7 +179,21 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
             "Could not run `%s --version`.\nError: %s" % (platformio, str(error))
         )
 
-    result = {"platformio_exe": platformio_exe, "version": str(pio_version)}
+    dev = dev or bool(pio_version.prerelease)
+    result = {
+        "core_dir": get_core_dir(),
+        "cache_dir": get_cache_dir(),
+        "penv_dir": penv.get_penv_dir(),
+        "penv_bin_dir": penv.get_penv_bin_dir(),
+        "platformio_exe": platformio_exe,
+        "core_version": str(pio_version),
+        "installer_version": __version__,
+        "python_exe": os.path.join(
+            penv.get_penv_bin_dir(), "python.exe" if util.IS_WINDOWS else "python"
+        ),
+        "system": util.get_systype(),
+        "is_develop_core": dev,
+    }
 
     if not auto_upgrade:
         return result
@@ -200,10 +215,10 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
     if not last_piocore_version_check:
         return result
 
-    dev = dev or pio_version.prerelease
     upgrade_core(platformio_exe, dev)
 
-    result["pio_version"] = get_pio_version(platformio)
+    result["core_version"] = get_pio_version(platformio)
+
     return result
 
 
@@ -234,3 +249,15 @@ def upgrade_core(platformio_exe, dev=False):
         raise exception.PIOInstallerException(
             "Could not upgrade PlatformIO Core: %s" % str(e)
         )
+
+
+def dump_state(target, state):
+    assert isinstance(target, str)
+
+    if os.path.isdir(target):
+        target = os.path.join(target, "get-platformio-core-state.json")
+    if not os.path.isdir(os.path.dirname(target)):
+        os.makedirs(os.path.dirname(target))
+
+    with io.open(target, "w", encoding="utf-8") as fp:
+        json.dump(state, fp)
