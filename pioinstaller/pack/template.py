@@ -36,7 +36,7 @@ def main():
     try:
         tmpdir = tempfile.mkdtemp()
 
-        pioinstaller_zip = os.path.join(tmpdir, "pioinstaller.egg")
+        pioinstaller_zip = os.path.join(tmpdir, "pioinstaller.zip")
         with open(pioinstaller_zip, "wb") as fp:
             fp.write(b64decode(DEPENDENCIES))
 
