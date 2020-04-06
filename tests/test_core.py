@@ -37,7 +37,7 @@ def test_install_pio_core(pio_installer_script, tmpdir, monkeypatch):
     assert (
         subprocess.check_call(
             [
-                python_exe,
+                "python",
                 pio_installer_script,
                 "check",
                 "core",
