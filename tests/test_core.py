@@ -41,7 +41,7 @@ def test_install_pio_core(pio_installer_script, tmpdir, monkeypatch):
     #             pio_installer_script,
     #             "check",
     #             "core",
-    #             "--dump-state-path=%s" % core_state_path,
+    #             "--dump-state=%s" % core_state_path,
     #         ]
     #     )
     #     == 0
