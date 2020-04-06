@@ -22,7 +22,12 @@ matrix:
 
 script:
   - python --version
+  - python2 --version
+  - python2.7 --version
   - python3 --version
+  - python3.5 --version
+  - python3.6 --version
+  - python3.7 --version
 #  - tox -e $TOX_ENV
 #  - make test
 
