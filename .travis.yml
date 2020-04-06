@@ -3,34 +3,37 @@ language: generic
 matrix:
   include:
     - os: linux
+      dist: bionic
       sudo: required
-      env: TOX_ENV=py27
+      env:
+        - TOX_ENV=py27
+        - PIPCMD=pip
     - os: linux
+      dist: bionic
       sudo: required
-      env: TOX_ENV=py35
+      env:
+        - TOX_ENV=py37
+        - PIPCMD=pip
     - os: osx
-      env: TOX_ENV=py27
+      env:
+        - TOX_ENV=py27
+        - PIPCMD=pip
     - os: osx
-      env: TOX_ENV=py37
+      env:
+        - TOX_ENV=py37
+        - PIPCMD=pip
 
-#install:
-#  - git submodule update --init --recursive
-#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -fsSL https://bootstrap.pypa.io/get-pip.py | sudo python; fi
-#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; else wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; fi
-#  - pip install -U tox pytest
-#  - pip install -e .
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -fsSL https://bootstrap.pypa.io/get-pip.py | sudo python; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; else wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; fi
+  - $PIPCMD install -U tox pytest
+  - $PIPCMD install -e .
 
 script:
-  - python --version
-  - python2 --version
-  - python2.7 --version
-  - python3 --version
-  - python3.5 --version
-  - python3.6 --version
-  - python3.7 --version
-  - pyenv --help
-#  - tox -e $TOX_ENV
-#  - make test
+  - tox -e $TOX_ENV
+  - make test
+
+
 
 notifications:
   email: false
