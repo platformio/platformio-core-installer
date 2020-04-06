@@ -23,8 +23,8 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TOX_ENV" == "py27" ]]; then pyenv install 2.7.17; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TOX_ENV" == "py37" ]]; then pyenv install 3.7.5; fi
   - pyenv versions
-  - if [[ "$TOX_ENV" == "py27" ]]; then pyenv global 2.7; fi
-  - if [[ "$TOX_ENV" == "py37" ]]; then pyenv global 3.7; fi
+  - if [[ "$TOX_ENV" == "py27" ]]; then pyenv global 2.7.17; fi
+  - if [[ "$TOX_ENV" == "py37" ]]; then pyenv global 3.7.5; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -fsSL https://bootstrap.pypa.io/get-pip.py | sudo python; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; else wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; fi
   - pip install -U tox pytest
