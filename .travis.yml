@@ -14,18 +14,18 @@ matrix:
       language: generic
       env: TOX_ENV=py27
 
-#install:
-#  - git submodule update --init --recursive
-#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -fsSL https://bootstrap.pypa.io/get-pip.py | sudo python; fi
-#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; else wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; fi
-#  - pip install -U tox pytest
-#  - pip install -e .
+install:
+  - git submodule update --init --recursive
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -fsSL https://bootstrap.pypa.io/get-pip.py | sudo python; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; else wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/bin/python"; fi
+  - pip install -U tox pytest
+  - pip install -e .
 
 script:
-  - python --version
-  - python3 --version
-#  - tox -e $TOX_ENV
-#  - make test
+#  - python --version
+#  - python3 --version
+  - tox -e $TOX_ENV
+  - make test
 
 notifications:
   email: false
