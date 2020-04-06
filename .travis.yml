@@ -28,6 +28,7 @@ script:
   - python3.5 --version
   - python3.6 --version
   - python3.7 --version
+  - pyenv --help
 #  - tox -e $TOX_ENV
 #  - make test
 
