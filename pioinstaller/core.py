@@ -183,10 +183,10 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
 
     with open(os.path.join(penv.get_penv_dir(), "state.json")) as fp:
         penv_state = json.load(fp)
-        if penv_state.get("platform") != platform.platform():
+        if penv_state.get("platform") != platform.platform(terse=True):
             raise exception.InvalidPlatformIOCore(
                 "PlatformIO installed using another platform `%s`. Your platform: %s"
-                % (penv_state.get("platform"), platform.platform())
+                % (penv_state.get("platform"), platform.platform(terse=True))
             )
 
     try:
