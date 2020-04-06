@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import io
 import json
 import logging
 import os
@@ -183,10 +182,10 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
 
     with open(os.path.join(penv.get_penv_dir(), "state.json")) as fp:
         penv_state = json.load(fp)
-        if penv_state.get("platform") != platform.platform():
+        if penv_state.get("platform") != platform.platform(terse=True):
             raise exception.InvalidPlatformIOCore(
                 "PlatformIO installed using another platform `%s`. Your platform: %s"
-                % (penv_state.get("platform"), platform.platform())
+                % (penv_state.get("platform"), platform.platform(terse=True))
             )
 
     try:
@@ -273,5 +272,5 @@ def dump_state(target, state):
     if not os.path.isdir(os.path.dirname(target)):
         os.makedirs(os.path.dirname(target))
 
-    with io.open(target, "w", encoding="utf-8") as fp:
+    with open(target, "w") as fp:
         json.dump(state, fp)

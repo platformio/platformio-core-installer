@@ -150,7 +150,7 @@ def add_state_info(python_exe, penv_dir):
         "created_on": int(round(time.time())),
         "python": {"path": python_exe, "version": python_version,},
         "installer_version": __version__,
-        "platform": platform.platform(),
+        "platform": platform.platform(terse=True),
     }
     with open(os.path.join(penv_dir, "state.json"), "w") as fp:
         json.dump(state, fp)

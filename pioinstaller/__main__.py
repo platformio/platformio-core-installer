@@ -45,7 +45,7 @@ def cli(
     ctx.obj["dev"] = dev
     if not ctx.invoked_subcommand:
         click.echo("Installer version: %s" % __version__)
-        click.echo("Platform: %s" % platform.platform())
+        click.echo("Platform: %s" % platform.platform(terse=True))
         click.echo("Python version: %s" % sys.version)
         click.echo("Python path: %s" % sys.executable)
         try:
