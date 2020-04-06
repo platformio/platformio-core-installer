@@ -121,7 +121,6 @@ See https://docs.platformio.org/page/installation.html#install-shell-commands
 
 
 def check(dev=False, auto_upgrade=False, version_requirements=None):
-
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
 
@@ -144,7 +143,7 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
         )
 
     try:
-        pio_state = fetch_platformio_state(python_exe)
+        pio_state = fetch_python_state(python_exe)
     except subprocess.CalledProcessError as e:
         error = e.output.decode()
         raise exception.InvalidPlatformIOCore(
@@ -152,7 +151,7 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
         )
 
     pio_version = convert_version(pio_state.get("core_version"))
-    dev = dev or bool(pio_version.prerelease)
+    dev = dev or bool(pio_version.prerelease if pio_version else False)
     pio_state.update(
         {
             "core_dir": get_core_dir(),
@@ -220,14 +219,13 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
     upgrade_core(platformio_exe, dev)
 
     try:
-        pio_state.update(fetch_platformio_state(python_exe))
+        pio_state.update(fetch_python_state(python_exe))
     except:  # pylint:disable=bare-except
         raise exception.InvalidPlatformIOCore("Could not import PlatformIO module")
-
     return pio_state
 
 
-def fetch_platformio_state(python_exe):
+def fetch_python_state(python_exe):
     code = """import platform
 import json
 import platformio
@@ -236,7 +234,7 @@ state = {
    "core_version": platformio.__version__,
    "python_version": platform.python_version()
 }
-print(json.dumps(state), end="")
+print(json.dumps(state))
 """
     state = subprocess.check_output(
         [python_exe, "-c", code,], stderr=subprocess.STDOUT,
@@ -248,7 +246,7 @@ def convert_version(version):
     try:
         return semantic_version.Version(util.pepver_to_semver(version))
     except:  # pylint:disable=bare-except
-        pass
+        return None
 
 
 def upgrade_core(platformio_exe, dev=False):
