@@ -20,6 +20,8 @@ matrix:
         - TOX_ENV=py37
 
 install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TOX_ENV" == "py27" ]]; then pyenv install 2.7; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TOX_ENV" == "py37" ]]; then pyenv install 3.7; fi
   - pyenv versions
   - if [[ "$TOX_ENV" == "py27" ]]; then pyenv global 2.7; fi
   - if [[ "$TOX_ENV" == "py37" ]]; then pyenv global 3.7; fi

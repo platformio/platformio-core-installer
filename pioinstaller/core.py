@@ -273,5 +273,5 @@ def dump_state(target, state):
     if not os.path.isdir(os.path.dirname(target)):
         os.makedirs(os.path.dirname(target))
 
-    with io.open(target, "w", encoding="utf-8") as fp:
+    with open(target, "w") as fp:
         json.dump(state, fp)
