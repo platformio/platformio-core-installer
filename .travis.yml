@@ -32,15 +32,10 @@ install:
   - pip install -e .
 
 script:
-#  - if [[ "$TOX_ENV" == "27" ]]; then pyenv global 2.7; fi
-#  - if [[ "$TOX_ENV" == "37" ]]; then pyenv global 3.7; fi
   - python --version
-  - python3 --version
   - pyenv versions
   - tox -e $TOX_ENV
-#  - make test
-
-
+  - make test
 
 notifications:
   email: false
