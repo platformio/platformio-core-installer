@@ -5,19 +5,25 @@ matrix:
     - os: linux
       sudo: required
       python: 2.7
-      env: TOX_ENV=py27
+      env:
+        - TOX_ENV=py27
+        - MINICONDA=/tmp/miniconda/python
     - os: linux
       sudo: required
       python: 3.6
-      env: TOX_ENV=py36
+      env:
+        - TOX_ENV=py36
+        - MINICONDA=/tmp/miniconda/python
     - os: osx
       language: generic
-      env: TOX_ENV=py27
+      env:
+        - TOX_ENV=py27
+        - MINICONDA=/tmp/miniconda/python
 
 install:
   - git submodule update --init --recursive
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -fsSL https://bootstrap.pypa.io/get-pip.py | sudo python; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/python"; else wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; export MINICONDA="/tmp/miniconda/python"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; else wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; bash /tmp/miniconda.sh -b -p /tmp/miniconda; fi
   - pip install -U tox pytest
   - pip install -e .
 
