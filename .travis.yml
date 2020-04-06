@@ -7,23 +7,20 @@ matrix:
       sudo: required
       env:
         - TOX_ENV=py27
-        - PIPCMD=pip
     - os: linux
       dist: bionic
       sudo: required
       env:
         - TOX_ENV=py37
-        - PIPCMD=pip3
     - os: osx
       env:
         - TOX_ENV=py27
-        - PIPCMD=pip
     - os: osx
       env:
         - TOX_ENV=py37
-        - PIPCMD=pip3
 
 install:
+  - pyenv versions
   - if [[ "$TOX_ENV" == "py27" ]]; then pyenv global 2.7; fi
   - if [[ "$TOX_ENV" == "py37" ]]; then pyenv global 3.7; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -fsSL https://bootstrap.pypa.io/get-pip.py | sudo python; fi
