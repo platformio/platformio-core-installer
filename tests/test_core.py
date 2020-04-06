@@ -33,35 +33,35 @@ def test_install_pio_core(pio_installer_script, tmpdir, monkeypatch):
     )
     assert subprocess.check_call([python_exe, "-m", "platformio", "--version"]) == 0
 
-    # core_state_path = os.path.join(str(core_dir), "core-state.json")
-    # assert (
-    #     subprocess.check_call(
-    #         [
-    #             python_exe,
-    #             pio_installer_script,
-    #             "check",
-    #             "core",
-    #             "--dump-state-path=%s" % core_state_path,
-    #         ]
-    #     )
-    #     == 0
-    # )
-    # with open(core_state_path) as fp:
-    #     json_info = json.load(fp)
-    #     assert json_info.get("core_dir") == str(core_dir)
-    #     assert json_info.get("penv_dir") == penv_dir
-    #     assert json_info.get("installer_version") == __version__
-    #     assert json_info.get("system") == util.get_systype()
+    core_state_path = os.path.join(str(core_dir), "core-state.json")
+    assert (
+        subprocess.check_call(
+            [
+                "python",
+                pio_installer_script,
+                "check",
+                "core",
+                "--dump-state=%s" % core_state_path,
+            ]
+        )
+        == 0
+    )
+    with open(core_state_path) as fp:
+        json_info = json.load(fp)
+        assert json_info.get("core_dir") == str(core_dir)
+        assert json_info.get("penv_dir") == penv_dir
+        assert json_info.get("installer_version") == __version__
+        assert json_info.get("system") == util.get_systype()
 
-    # assert os.path.isfile(
-    #     os.path.join(
-    #         penv.get_penv_bin_dir(penv_dir),
-    #         "platformio.exe" if util.IS_WINDOWS else "platformio",
-    #     )
-    # )
-    # assert os.path.isfile(
-    #     os.path.join(str(core_dir), "packages", "contrib-piohome", "package.json")
-    # )
-    # assert os.path.isfile(
-    #     os.path.join(str(core_dir), "packages", "contrib-pysite", "package.json")
-    # )
+    assert os.path.isfile(
+        os.path.join(
+            penv.get_penv_bin_dir(penv_dir),
+            "platformio.exe" if util.IS_WINDOWS else "platformio",
+        )
+    )
+    assert os.path.isfile(
+        os.path.join(str(core_dir), "packages", "contrib-piohome", "package.json")
+    )
+    assert os.path.isfile(
+        os.path.join(str(core_dir), "packages", "contrib-pysite", "package.json")
+    )

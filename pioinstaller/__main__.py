@@ -45,7 +45,7 @@ def cli(
     ctx.obj["dev"] = dev
     if not ctx.invoked_subcommand:
         click.echo("Installer version: %s" % __version__)
-        click.echo("Platform: %s" % platform.platform())
+        click.echo("Platform: %s" % platform.platform(terse=True))
         click.echo("Python version: %s" % sys.version)
         click.echo("Python path: %s" % sys.executable)
         try:
@@ -92,21 +92,21 @@ def python():
 @click.option("--auto-upgrade/--no-auto-upgrade", is_flag=True, default=True)
 @click.option("--version-requirements", default=None)
 @click.option(
-    "--dump-state-path",
+    "--dump-state",
     type=click.Path(
         exists=False, file_okay=True, dir_okay=True, writable=True, resolve_path=True
     ),
 )
 @click.pass_context
-def core_check(ctx, auto_upgrade, version_requirements, dump_state_path):
+def core_check(ctx, auto_upgrade, version_requirements, dump_state):
     try:
         state = core.check(
             dev=ctx.obj.get("dev", False),
             auto_upgrade=auto_upgrade,
             version_requirements=version_requirements,
         )
-        if dump_state_path:
-            core.dump_state(target=dump_state_path, state=state)
+        if dump_state:
+            core.dump_state(target=dump_state, state=state)
         click.secho(
             "Found compatible PlatformIO Core %s -> %s"
             % (state.get("core_version"), state.get("platformio_exe")),

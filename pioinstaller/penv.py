@@ -65,8 +65,8 @@ def create_core_penv(penv_dir=None, ignore_pythons=None):
 
     if not result_dir:
         raise exception.PIOInstallerException(
-            "Could not create PIO Core Virtual Environment. "
-            "Please create it manually -> http://bit.ly/pio-core-virtualenv"
+            "Could not create PIO Core Virtual Environment. Please report to "
+            "https://github.com/platformio/platformio-core-installer/issues"
         )
 
     python_exe = os.path.join(
@@ -150,7 +150,7 @@ def add_state_info(python_exe, penv_dir):
         "created_on": int(round(time.time())),
         "python": {"path": python_exe, "version": python_version,},
         "installer_version": __version__,
-        "platform": platform.platform(),
+        "platform": platform.platform(terse=True),
     }
     with open(os.path.join(penv_dir, "state.json"), "w") as fp:
         json.dump(state, fp)

@@ -38,7 +38,10 @@ setup(
         "click==7.1.1",
         "requests==2.23.0",
         "colorama==0.4.3",
-        "semantic-version==2.8.4"
+        "semantic-version==2.8.4",
+        "certifi==2020.04.05.1",
+        # Misc
+        "wheel==0.34.2",
     ],
     packages=find_packages(),
     entry_points={
