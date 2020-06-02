@@ -35,17 +35,14 @@ def test_install_pio_core(pio_installer_script, tmpdir, monkeypatch):
 
     core_state_path = os.path.join(str(core_dir), "core-state.json")
     try:
-        assert (
-            subprocess.check_output(
-                [
-                    "python",
-                    pio_installer_script,
-                    "check",
-                    "core",
-                    "--dump-state=%s" % core_state_path,
-                ], stderr=subprocess.STDOUT
-            )
-            == 0
+        subprocess.check_output(
+            [
+                "python",
+                pio_installer_script,
+                "check",
+                "core",
+                "--dump-state=%s" % core_state_path,
+            ], stderr=subprocess.STDOUT
         )
     except subprocess.CalledProcessError as e:
         error = e.output.decode()
