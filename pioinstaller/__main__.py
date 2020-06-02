@@ -106,7 +106,7 @@ def core_check(ctx, auto_upgrade, version_spec, dump_state):
             version_spec=version_spec,
         )
         if dump_state:
-            core.dump_state(target=dump_state, state=state)
+            core.dump_state(target=str(dump_state), state=state)
         click.secho(
             "Found compatible PlatformIO Core %s -> %s"
             % (state.get("core_version"), state.get("platformio_exe")),
