@@ -26,8 +26,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox
       - name: Python Lint
-          run: |
-            tox -e lint
+        run: |
+          tox -e lint
       - name: Integration Tests
         run: |
           tox -e test
