@@ -119,7 +119,7 @@ See https://docs.platformio.org/page/installation.html#install-shell-commands
     return True
 
 
-def check(dev=False, auto_upgrade=False, version_requirements=None):
+def check(dev=False, auto_upgrade=False, version_spec=None):
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
 
@@ -166,18 +166,17 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
         }
     )
 
-    if version_requirements:
+    if version_spec:
         try:
             if piocore_version in semantic_version.Spec(version_requirements):
                 raise exception.InvalidPlatformIOCore(
                     "PlatformIO Core version %s does not match version requirements %s."
-                    % (str(piocore_version), version_requirements)
+                    % (str(piocore_version), version_spec)
                 )
         except ValueError:
             click.secho(
                 "Invalid version requirements format: %s. "
-                "More about Semantic Versioning: https://semver.org/"
-                % version_requirements
+                "More about Semantic Versioning: https://semver.org/" % version_spec
             )
 
     with open(os.path.join(penv.get_penv_dir(), "state.json")) as fp:

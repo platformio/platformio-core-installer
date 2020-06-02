@@ -90,7 +90,7 @@ def python():
 
 @check.command("core")
 @click.option("--auto-upgrade/--no-auto-upgrade", is_flag=True, default=True)
-@click.option("--version-requirements", default=None)
+@click.option("--version-spec", default=None)
 @click.option(
     "--dump-state",
     type=click.Path(
@@ -98,12 +98,12 @@ def python():
     ),
 )
 @click.pass_context
-def core_check(ctx, auto_upgrade, version_requirements, dump_state):
+def core_check(ctx, auto_upgrade, version_spec, dump_state):
     try:
         state = core.check(
             dev=ctx.obj.get("dev", False),
             auto_upgrade=auto_upgrade,
-            version_requirements=version_requirements,
+            version_spec=version_spec,
         )
         if dump_state:
             core.dump_state(target=dump_state, state=state)
