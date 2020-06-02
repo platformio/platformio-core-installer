@@ -35,18 +35,19 @@ def get_core_dir():
         return os.getenv("PLATFORMIO_CORE_DIR")
 
     core_dir = os.path.join(util.expanduser("~"), ".platformio")
-    if not util.IS_WINDOWS or not util.has_non_ascii_char(core_dir):
+    if not util.IS_WINDOWS:
         return core_dir
 
     win_core_dir = os.path.splitdrive(core_dir)[0] + "\\.platformio"
     if os.path.isdir(win_core_dir):
         return win_core_dir
     try:
-        os.makedirs(win_core_dir)
-        with open(os.path.join(win_core_dir, "file.tmp"), "w") as fp:
-            fp.write("test")
-        os.remove(os.path.join(win_core_dir, "file.tmp"))
-        return win_core_dir
+        if util.has_non_ascii_char(core_dir):
+            os.makedirs(win_core_dir)
+            with open(os.path.join(win_core_dir, "file.tmp"), "w") as fp:
+                fp.write("test")
+            os.remove(os.path.join(win_core_dir, "file.tmp"))
+            return win_core_dir
     except:  # pylint:disable=bare-except
         pass
 
