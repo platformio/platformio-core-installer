@@ -168,7 +168,7 @@ def check(dev=False, auto_upgrade=False, version_spec=None):
 
     if version_spec:
         try:
-            if piocore_version in semantic_version.Spec(version_requirements):
+            if piocore_version not in semantic_version.Spec(version_spec):
                 raise exception.InvalidPlatformIOCore(
                     "PlatformIO Core version %s does not match version requirements %s."
                     % (str(piocore_version), version_spec)
