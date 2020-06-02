@@ -34,18 +34,22 @@ def test_install_pio_core(pio_installer_script, tmpdir, monkeypatch):
     assert subprocess.check_call([python_exe, "-m", "platformio", "--version"]) == 0
 
     core_state_path = os.path.join(str(core_dir), "core-state.json")
-    assert (
-        subprocess.check_call(
-            [
-                "python",
-                pio_installer_script,
-                "check",
-                "core",
-                "--dump-state=%s" % core_state_path,
-            ]
+    try:
+        assert (
+            subprocess.check_output(
+                [
+                    "python",
+                    pio_installer_script,
+                    "check",
+                    "core",
+                    "--dump-state=%s" % core_state_path,
+                ], stderr=subprocess.STDOUT
+            )
+            == 0
         )
-        == 0
-    )
+    except subprocess.CalledProcessError as e:
+        error = e.output.decode()
+        print(error)
     with open(core_state_path) as fp:
         json_info = json.load(fp)
         assert json_info.get("core_dir") == str(core_dir)
