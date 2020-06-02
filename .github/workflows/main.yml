@@ -21,21 +21,17 @@ jobs:
           python -V
           which python
           echo $PATH
-#      - name: Install dependencies
-#        run: |
-#          python -m pip install --upgrade pip
-#          pip install tox
-#
-#      - name: Python Lint
-#        run: |
-#          tox -e lint
-#      - name: Integration Tests
-#        env:
-#          PLATFORMIO_TEST_ACCOUNT_LOGIN: ${{ secrets.PLATFORMIO_TEST_ACCOUNT_LOGIN }}
-#          PLATFORMIO_TEST_ACCOUNT_PASSWORD: ${{ secrets.PLATFORMIO_TEST_ACCOUNT_PASSWORD }}
-#        run: |
-#          tox -e testcore
-#
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      - name: Python Lint
+          run: |
+            tox -e lint
+      - name: Integration Tests
+        run: |
+          tox -e test
+
 #      - name: Slack Notification
 #        uses: homoluctus/slatify@master
 #        if: failure()
