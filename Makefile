@@ -12,20 +12,15 @@ format:
 test:
 	py.test --verbose --capture=no --exitfirst tests
 
-before-commit: isort format lint test
+pack:
+	pioinstaller pack
+
+before-commit: isort format lint
 
 clean:
 	find . -name \*.pyc -delete
 	find . -name __pycache__ -delete
 	rm -rf .cache
-	rm -rf build
-	rm -rf htmlcov
-	rm -f .coverage
-
-profile:
-	# Usage $ > make PIOARGS="boards" profile
-	python -m cProfile -o .tox/.tmp/cprofile.prof $(shell which platformio) ${PIOARGS}
-	snakeviz .tox/.tmp/cprofile.prof
 
 publish:
 	python setup.py sdist upload

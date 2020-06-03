@@ -35,19 +35,21 @@ def get_core_dir():
         return os.getenv("PLATFORMIO_CORE_DIR")
 
     core_dir = os.path.join(util.expanduser("~"), ".platformio")
-    if not util.IS_WINDOWS or not util.has_non_ascii_char(core_dir):
+    if not util.IS_WINDOWS:
         return core_dir
 
     win_core_dir = os.path.splitdrive(core_dir)[0] + "\\.platformio"
-    if not os.path.isdir(win_core_dir):
-        try:
+    if os.path.isdir(win_core_dir):
+        return win_core_dir
+    try:
+        if util.has_non_ascii_char(core_dir):
             os.makedirs(win_core_dir)
             with open(os.path.join(win_core_dir, "file.tmp"), "w") as fp:
                 fp.write("test")
             os.remove(os.path.join(win_core_dir, "file.tmp"))
             return win_core_dir
-        except:  # pylint:disable=bare-except
-            pass
+    except:  # pylint:disable=bare-except
+        pass
 
     return core_dir
 
@@ -119,7 +121,7 @@ See https://docs.platformio.org/page/installation.html#install-shell-commands
     return True
 
 
-def check(dev=False, auto_upgrade=False, version_requirements=None):
+def check(dev=False, auto_upgrade=False, version_spec=None):
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
 
@@ -166,18 +168,17 @@ def check(dev=False, auto_upgrade=False, version_requirements=None):
         }
     )
 
-    if version_requirements:
+    if version_spec:
         try:
-            if piocore_version in semantic_version.Spec(version_requirements):
+            if piocore_version not in semantic_version.Spec(version_spec):
                 raise exception.InvalidPlatformIOCore(
                     "PlatformIO Core version %s does not match version requirements %s."
-                    % (str(piocore_version), version_requirements)
+                    % (str(piocore_version), version_spec)
                 )
         except ValueError:
             click.secho(
                 "Invalid version requirements format: %s. "
-                "More about Semantic Versioning: https://semver.org/"
-                % version_requirements
+                "More about Semantic Versioning: https://semver.org/" % version_spec
             )
 
     with open(os.path.join(penv.get_penv_dir(), "state.json")) as fp:
