@@ -14,7 +14,7 @@
 
 import logging.config
 
-VERSION = (0, 3, 1)
+VERSION = (0, 3, 2)
 __version__ = ".".join([str(s) for s in VERSION])
 
 __title__ = "platformio-installer"
