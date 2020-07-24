@@ -36,10 +36,10 @@ setup(
     install_requires=[
         # Core
         "click==7.1.2",
-        "requests==2.23.0",
+        "requests==2.24.0",
         "colorama==0.4.3",
         "semantic-version==2.8.5",
-        "certifi==2020.04.05.2",
+        "certifi==2020.6.20",
         # Misc
         "wheel==0.34.2",
     ],
