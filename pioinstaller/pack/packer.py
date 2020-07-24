@@ -36,12 +36,12 @@ def pack(target):
     if not os.path.isdir(os.path.dirname(target)):
         os.makedirs(os.path.dirname(target))
 
-    tmpdir = tempfile.mkdtemp()
-    create_wheels(os.path.dirname(util.get_source_dir()), tmpdir)
+    tmp_dir = tempfile.mkdtemp()
+    create_wheels(os.path.dirname(util.get_source_dir()), tmp_dir)
 
     new_data = io.BytesIO()
-    for whl in os.listdir(tmpdir):
-        with zipfile.ZipFile(os.path.join(tmpdir, whl)) as existing_zip:
+    for whl in os.listdir(tmp_dir):
+        with zipfile.ZipFile(os.path.join(tmp_dir, whl)) as existing_zip:
             with zipfile.ZipFile(new_data, mode="a") as new_zip:
                 for zinfo in existing_zip.infolist():
                     if re.search(r"\.dist-info/", zinfo.filename):
@@ -49,14 +49,8 @@ def pack(target):
                     new_zip.writestr(zinfo, existing_zip.read(zinfo))
     zipdata = base64.b64encode(new_data.getvalue()).decode("utf8")
     with open(target, "w") as fp:
-        with open(
-            os.path.join(util.get_source_dir(), "pack", "template.py"), "r"
-        ) as fp_template:
-            fp.write(
-                fp_template.read().format(
-                    installed_version="latest", zipfile_content=zipdata,
-                ),
-            )
+        with open(os.path.join(util.get_source_dir(), "pack", "template.py")) as fptlp:
+            fp.write(fptlp.read().format(zipfile_content=zipdata))
 
     # Ensure the permissions on the newly created file
     oldmode = os.stat(target).st_mode & 0o7777
@@ -64,6 +58,6 @@ def pack(target):
     os.chmod(target, newmode)
 
     # Clearing up
-    shutil.rmtree(tmpdir)
+    shutil.rmtree(tmp_dir)
 
     return target
