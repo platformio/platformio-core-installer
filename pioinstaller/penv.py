@@ -123,7 +123,7 @@ def create_with_remote_venv(python_exe, penv_dir):
     venv_script_path = util.download_file(
         VIRTUALENV_URL,
         os.path.join(
-            os.path.dirname(penv_dir), "penv-tmp", os.path.basename(VIRTUALENV_URL)
+            os.path.dirname(penv_dir), ".cache", "tmp", os.path.basename(VIRTUALENV_URL)
         ),
     )
     if not venv_script_path:
@@ -166,7 +166,7 @@ def install_pip(python_exe, penv_dir):
 
         log.debug("Downloading 'get-pip.py' installer...")
         get_pip_path = os.path.join(
-            os.path.dirname(penv_dir), "penv-tmp", os.path.basename(PIP_URL)
+            os.path.dirname(penv_dir), ".cache", "tmp", os.path.basename(PIP_URL)
         )
         util.download_file(PIP_URL, get_pip_path)
 
