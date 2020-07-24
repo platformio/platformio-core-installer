@@ -25,6 +25,21 @@ DEPENDENCIES = b"""
 """
 
 
+def create_temp_dir():
+    try:
+        cur_dir = os.path.dirname(os.path.realpath(__file__))
+        tmp_dir = tempfile.mkdtemp(dir=cur_dir, prefix=".piocore-installer-")
+        testscript_path = os.path.join(tmp_dir, "test.py")
+        with open(testscript_path, "w") as fp:
+            fp.write("print(1)")
+        assert os.path.isfile(testscript_path)
+        os.remove(testscript_path)
+        return tmp_dir
+    except (AssertionError, NameError):
+        pass
+    return tempfile.mkdtemp()
+
+
 def bootstrap():
     import pioinstaller.__main__
 
@@ -32,11 +47,11 @@ def bootstrap():
 
 
 def main():
-    tmpdir = None
+    runtime_tmp_dir = create_temp_dir()
+    os.environ["TMPDIR"] = runtime_tmp_dir
+    tmp_dir = tempfile.mkdtemp(dir=runtime_tmp_dir)
     try:
-        tmpdir = tempfile.mkdtemp()
-
-        pioinstaller_zip = os.path.join(tmpdir, "pioinstaller.zip")
+        pioinstaller_zip = os.path.join(tmp_dir, "pioinstaller.zip")
         with open(pioinstaller_zip, "wb") as fp:
             fp.write(b64decode(DEPENDENCIES))
 
@@ -44,8 +59,9 @@ def main():
 
         bootstrap()
     finally:
-        if tmpdir:
-            shutil.rmtree(tmpdir, ignore_errors=True)
+        for d in (runtime_tmp_dir, tmp_dir):
+            if d and os.path.isdir(d):
+                shutil.rmtree(d, ignore_errors=True)
 
 
 if __name__ == "__main__":

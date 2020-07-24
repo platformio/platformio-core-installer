@@ -69,7 +69,7 @@ def fetch_portable_python(dst):
         log.debug("Downloading portable python...")
 
         archive_path = util.download_file(
-            url, os.path.join(os.path.join(dst, "penv-tmp"), os.path.basename(url))
+            url, os.path.join(os.path.join(dst, ".cache", "tmp"), os.path.basename(url))
         )
 
         python_dir = os.path.join(dst, "python37")
