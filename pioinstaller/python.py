@@ -28,12 +28,16 @@ log = logging.getLogger(__name__)
 
 PORTABLE_PYTHONS = {
     "windows_x86": (
-        "https://github.com/platformio/platformio-core-installer/releases/download/"
-        "v0.3.1/python-portable-windows_x86-3.7.7.tar.gz"
+        "https://dl.bintray.com/platformio/dl-misc/"
+        "python-portable-windows_x86-3.7.7.tar.gz"
     ),
     "windows_amd64": (
-        "https://github.com/platformio/platformio-core-installer/releases/download/"
-        "v0.3.1/python-portable-windows_amd64-3.7.7.tar.gz"
+        "https://dl.bintray.com/platformio/dl-misc/"
+        "python-portable-windows_amd64-3.7.7.tar.gz"
+    ),
+    "darwin_x86_64": (
+        "https://dl.bintray.com/platformio/dl-misc/"
+        "python-portable-darwin_x86_64-3.8.4.tar.gz"
     ),
 }
 
@@ -72,7 +76,7 @@ def fetch_portable_python(dst):
             url, os.path.join(os.path.join(dst, ".cache", "tmp"), os.path.basename(url))
         )
 
-        python_dir = os.path.join(dst, "python37")
+        python_dir = os.path.join(dst, "python3")
         util.safe_remove_dir(python_dir)
         util.safe_create_dir(python_dir, raise_exception=True)
 
@@ -80,7 +84,7 @@ def fetch_portable_python(dst):
         util.unpack_archive(archive_path, python_dir)
         if util.IS_WINDOWS:
             return os.path.join(python_dir, "python.exe")
-        return os.path.join(python_dir, "python")
+        return os.path.join(python_dir, "bin", "python3")
     except:  # pylint:disable=bare-except
         log.debug("Could not download portable python")
 
