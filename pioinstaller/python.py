@@ -72,7 +72,7 @@ def fetch_portable_python(dst):
             url, os.path.join(os.path.join(dst, ".cache", "tmp"), os.path.basename(url))
         )
 
-        python_dir = os.path.join(dst, "python37")
+        python_dir = os.path.join(dst, "python3")
         util.safe_remove_dir(python_dir)
         util.safe_create_dir(python_dir, raise_exception=True)
 
