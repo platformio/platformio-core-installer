@@ -135,7 +135,7 @@ def check():
     return True
 
 
-def find_compatible_pythons(ignore_pythons=None):
+def find_compatible_pythons(ignore_pythons=None):  # pylint: disable=too-many-branches
     ignore_list = []
     for p in ignore_pythons or []:
         ignore_list.extend(glob.glob(p))
@@ -171,9 +171,17 @@ def find_compatible_pythons(ignore_pythons=None):
                 stderr=subprocess.STDOUT,
             )
             result.append(item)
-            log.debug(output.decode().strip())
+            try:
+                log.debug(output.decode().strip())
+            except UnicodeDecodeError:
+                pass
         except subprocess.CalledProcessError as e:  # pylint:disable=bare-except
-            error = e.output.decode()
+            try:
+                error = e.output.decode()
+                log.debug(error)
+            except UnicodeDecodeError:
+                pass
+            error = error or ""
             if "Could not find distutils module" in error:
                 # pylint:disable=line-too-long
                 raise click.ClickException(
@@ -184,5 +192,4 @@ $ apt-get install python3-distutils
 
 (MAY require administrator access `sudo`)""",
                 )
-            log.debug(error)
     return result
