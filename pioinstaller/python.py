@@ -18,6 +18,7 @@ import os
 import platform
 import subprocess
 import sys
+import tempfile
 
 import click
 
@@ -112,6 +113,12 @@ def check():
         __import__("distutils.command")
     except ImportError:
         raise exception.DistutilsNotFound()
+
+    # portable Python 3 for macOS is not compatible with macOS < 10.13
+    # https://github.com/platformio/platformio-core-installer/issues/70
+    if util.IS_MACOS and sys.version_info >= (3, 5):
+        with tempfile.NamedTemporaryFile() as tmpfile:
+            os.utime(tmpfile.name)
 
     if not util.IS_WINDOWS:
         return True

@@ -25,6 +25,7 @@ import tarfile
 import requests
 
 IS_WINDOWS = sys.platform.lower().startswith("win")
+IS_MACOS = sys.platform.lower() == "darwin"
 
 log = logging.getLogger(__name__)
 
