@@ -13,4 +13,6 @@ disable=
     bad-continuation,
     fixme,
     arguments-differ,
-    useless-object-inheritance
+    useless-object-inheritance,
+    super-with-arguments,
+    raise-missing-from
