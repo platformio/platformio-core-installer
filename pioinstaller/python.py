@@ -48,10 +48,10 @@ def is_conda():
         [
             os.path.exists(os.path.join(sys.prefix, "conda-meta")),
             # (os.getenv("CONDA_PREFIX") or os.getenv("CONDA_DEFAULT_ENV")),
-            "anaconda" in sys.executable,
-            "miniconda" in sys.executable,
-            "Continuum Analytics" in sys.version,
-            "conda" in sys.version,
+            "anaconda" in sys.executable.lower(),
+            "miniconda" in sys.executable.lower(),
+            "continuum analytics" in sys.version.lower(),
+            "conda" in sys.version.lower(),
         ]
     )
 
