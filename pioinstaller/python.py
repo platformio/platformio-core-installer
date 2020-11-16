@@ -195,7 +195,7 @@ def find_compatible_pythons(ignore_pythons=None):  # pylint: disable=too-many-br
                     """Can not install PlatformIO Core due to a missed `distutils` package in your Python installation.
 Please install this package manually using the OS package manager. For example:
 
-$ apt-get install python3-distutils
+$ apt-get install python3-venv
 
 (MAY require administrator access `sudo`)""",
                 )
