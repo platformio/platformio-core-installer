@@ -11,3 +11,8 @@ build/
 
 # Misc
 .idea
+.vscode
+
+# Virtualenv
+.Python
+.venv

@@ -36,9 +36,10 @@ log = logging.getLogger(__name__)
     multiple=True,
     help="A path to Python to be ignored (multiple options and unix wildcards are allowed)",
 )
+@click.option("--index", help="A url to PyPI mirror to use in the installation")
 @click.pass_context
 def cli(
-    ctx, verbose, shutdown_piohome, dev, ignore_python
+    ctx, verbose, shutdown_piohome, dev, ignore_python, index
 ):  # pylint:disable=too-many-arguments
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
@@ -49,7 +50,7 @@ def cli(
         click.echo("Python version: %s" % sys.version)
         click.echo("Python path: %s" % sys.executable)
         try:
-            core.install_platformio_core(shutdown_piohome, dev, ignore_python)
+            core.install_platformio_core(shutdown_piohome, dev, ignore_python, index)
         except exception.PIOInstallerException as e:
             raise click.ClickException(str(e))
 

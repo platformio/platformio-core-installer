@@ -62,7 +62,7 @@ def get_cache_dir(path=None):
     return path
 
 
-def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons=None):
+def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons=None, index=None):
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
 
@@ -80,6 +80,10 @@ def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons
     else:
         click.echo("Installing PlatformIO Core")
         command.append("platformio")
+        if index is not None:
+            click.echo("Using user-specified PyPI mirror " + index)
+            command.append("-i")
+            command.append(index)
     try:
         subprocess.check_call(command)
     except Exception as e:  # pylint:disable=broad-except
