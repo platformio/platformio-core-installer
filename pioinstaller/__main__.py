@@ -43,15 +43,18 @@ def cli(
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
     ctx.obj["dev"] = dev
-    if not ctx.invoked_subcommand:
-        click.echo("Installer version: %s" % __version__)
-        click.echo("Platform: %s" % platform.platform(terse=True))
-        click.echo("Python version: %s" % sys.version)
-        click.echo("Python path: %s" % sys.executable)
-        try:
-            core.install_platformio_core(shutdown_piohome, dev, ignore_python)
-        except exception.PIOInstallerException as e:
-            raise click.ClickException(str(e))
+    if ctx.invoked_subcommand:
+        return
+
+    click.echo("Installer version: %s" % __version__)
+    click.echo("Platform: %s" % platform.platform(terse=True))
+    click.echo("Python version: %s" % sys.version)
+    click.echo("Python path: %s" % sys.executable)
+
+    try:
+        core.install_platformio_core(shutdown_piohome, dev, ignore_python)
+    except exception.PIOInstallerException as exc:
+        raise click.ClickException(str(exc))
 
 
 @cli.command()

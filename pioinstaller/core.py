@@ -30,7 +30,7 @@ PIO_CORE_DEVELOP_URL = "https://github.com/platformio/platformio/archive/develop
 UPDATE_INTERVAL = 60 * 60 * 24 * 3  # 3 days
 
 
-def get_core_dir():
+def get_core_dir(force_to_root=False):
     if os.getenv("PLATFORMIO_CORE_DIR"):
         return os.getenv("PLATFORMIO_CORE_DIR")
 
@@ -38,16 +38,16 @@ def get_core_dir():
     if not util.IS_WINDOWS:
         return core_dir
 
-    win_core_dir = os.path.splitdrive(core_dir)[0] + "\\.platformio"
-    if os.path.isdir(win_core_dir):
-        return win_core_dir
+    win_root_dir = os.path.splitdrive(core_dir)[0] + "\\.platformio"
+    if os.path.isdir(win_root_dir):
+        return win_root_dir
     try:
-        if util.has_non_ascii_char(core_dir):
-            os.makedirs(win_core_dir)
-            with open(os.path.join(win_core_dir, "file.tmp"), "w") as fp:
+        if util.has_non_ascii_char(core_dir) or force_to_root:
+            os.makedirs(win_root_dir)
+            with open(os.path.join(win_root_dir, "file.tmp"), "w") as fp:
                 fp.write("test")
-            os.remove(os.path.join(win_core_dir, "file.tmp"))
-            return win_core_dir
+            os.remove(os.path.join(win_root_dir, "file.tmp"))
+            return win_root_dir
     except:  # pylint:disable=bare-except
         pass
 
@@ -63,6 +63,29 @@ def get_cache_dir(path=None):
 
 
 def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons=None):
+    try:
+        return _install_platformio_core(
+            shutdown_piohome=shutdown_piohome,
+            develop=develop,
+            ignore_pythons=ignore_pythons,
+        )
+    except subprocess.CalledProcessError as exc:
+        # Issue #221: Workaround for Windows OS when username contains a space
+        # https://github.com/platformio/platformio-core-installer/issues/221
+        if (
+            util.IS_WINDOWS
+            and " " in get_core_dir()
+            and " " not in get_core_dir(force_to_root=True)
+        ):
+            return _install_platformio_core(
+                shutdown_piohome=shutdown_piohome,
+                develop=develop,
+                ignore_pythons=ignore_pythons,
+            )
+        raise exc
+
+
+def _install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons=None):
     # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
     from pioinstaller import penv
 
