@@ -96,10 +96,6 @@ def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons
         penv.get_penv_bin_dir(penv_dir),
         "platformio.exe" if util.IS_WINDOWS else "platformio",
     )
-    try:
-        home.install_pio_home(platformio_exe)
-    except Exception as e:  # pylint:disable=broad-except
-        log.debug(e)
 
     click.secho(
         "\nPlatformIO Core has been successfully installed into an isolated environment `%s`!\n"
