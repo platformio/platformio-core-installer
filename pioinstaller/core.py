@@ -126,7 +126,8 @@ def check(dev=False, auto_upgrade=False, version_spec=None):
     from pioinstaller import penv
 
     platformio_exe = os.path.join(
-        penv.get_penv_bin_dir(), "platformio.exe" if util.IS_WINDOWS else "platformio",
+        penv.get_penv_bin_dir(),
+        "platformio.exe" if util.IS_WINDOWS else "platformio",
     )
     python_exe = os.path.join(
         penv.get_penv_bin_dir(), "python.exe" if util.IS_WINDOWS else "python"
@@ -238,7 +239,12 @@ state = {
 print(json.dumps(state))
 """
     state = subprocess.check_output(
-        [python_exe, "-c", code,], stderr=subprocess.STDOUT,
+        [
+            python_exe,
+            "-c",
+            code,
+        ],
+        stderr=subprocess.STDOUT,
     )
     return json.loads(state.decode())
 
@@ -256,7 +262,8 @@ def upgrade_core(platformio_exe, dev=False):
         command.append("--dev")
     try:
         subprocess.check_output(
-            command, stderr=subprocess.PIPE,
+            command,
+            stderr=subprocess.PIPE,
         )
         return True
     except Exception as e:  # pylint:disable=broad-except

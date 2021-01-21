@@ -92,7 +92,8 @@ def create_virtualenv(python_exe, penv_dir):
             return create_with_remote_venv(python_exe, penv_dir)
         except Exception as e:  # pylint:disable=broad-except
             log.debug(
-                "Could not create virtualenv with downloaded script. Error: %s", str(e),
+                "Could not create virtualenv with downloaded script. Error: %s",
+                str(e),
             )
 
 
@@ -148,7 +149,10 @@ def add_state_info(python_exe, penv_dir):
     )
     state = {
         "created_on": int(round(time.time())),
-        "python": {"path": python_exe, "version": python_version,},
+        "python": {
+            "path": python_exe,
+            "version": python_version,
+        },
         "installer_version": __version__,
         "platform": platform.platform(terse=True),
     }
@@ -176,6 +180,7 @@ def install_pip(python_exe, penv_dir):
         return True
     except Exception as e:  # pylint:disable=broad-except
         log.debug(
-            "Could not install pip. Error: %s", str(e),
+            "Could not install pip. Error: %s",
+            str(e),
         )
         return False
