@@ -93,15 +93,13 @@ def fetch_portable_python(dst):
 def check():
     # platform check
     if sys.platform == "cygwin":
-        raise exception.IncompatiblePythonError("Unsupported cygwin platform")
+        raise exception.IncompatiblePythonError("Unsupported Cygwin platform")
 
     # version check
-    if not (
-        sys.version_info >= (2, 7, 9) and sys.version_info < (3,)
-    ) and not sys.version_info >= (3, 5):
+    if sys.version_info < (3, 6):
         raise exception.IncompatiblePythonError(
-            "Unsupported python version: %s. "
-            "Supported version: >= 2.7.9 and < 3, or >= 3.5"
+            "Unsupported Python version: %s. "
+            "Minimum supported Python version is 3.6 or above."
             % platform.python_version(),
         )
 
@@ -116,7 +114,7 @@ def check():
 
     # portable Python 3 for macOS is not compatible with macOS < 10.13
     # https://github.com/platformio/platformio-core-installer/issues/70
-    if util.IS_MACOS and sys.version_info >= (3, 5):
+    if util.IS_MACOS:
         with tempfile.NamedTemporaryFile() as tmpfile:
             os.utime(tmpfile.name)
 
@@ -142,11 +140,13 @@ def check():
     return True
 
 
-def find_compatible_pythons(ignore_pythons=None):  # pylint: disable=too-many-branches
+def find_compatible_pythons(
+    ignore_pythons=None, raise_exception=True
+):  # pylint: disable=too-many-branches
     ignore_list = []
     for p in ignore_pythons or []:
         ignore_list.extend(glob.glob(p))
-    exenames = ["python3", "python", "python2"]
+    exenames = ["python3", "python"]
     if util.IS_WINDOWS:
         exenames = ["%s.exe" % item for item in exenames]
     log.debug("Current environment PATH %s", os.getenv("PATH"))
@@ -199,4 +199,12 @@ $ apt-get install python3-venv
 
 (MAY require administrator access `sudo`)""",
                 )
+
+    if not result and raise_exception:
+        raise exception.IncompatiblePythonError(
+            "Could not find compatible Python 3.6 or above in your system."
+            "Please install the latest official Python 3 and restart installation:\n"
+            "https://docs.platformio.org/page/faq.html#install-python-interpreter"
+        )
+
     return result
