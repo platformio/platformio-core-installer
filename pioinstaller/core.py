@@ -186,7 +186,8 @@ def check(dev=False, auto_upgrade=False, version_spec=None):
         penv_state = json.load(fp)
         if penv_state.get("platform") != platform.platform(terse=True):
             raise exception.InvalidPlatformIOCore(
-                "PlatformIO installed using another platform `%s`. Your platform: %s"
+                "PlatformIO Core was installed using another platform `%s`. "
+                "Your current platform: %s"
                 % (penv_state.get("platform"), platform.platform(terse=True))
             )
 
