@@ -60,9 +60,3 @@ def test_install_pio_core(pio_installer_script, tmpdir, monkeypatch):
             "platformio.exe" if util.IS_WINDOWS else "platformio",
         )
     )
-    assert os.path.isfile(
-        os.path.join(str(core_dir), "packages", "contrib-piohome", "package.json")
-    )
-    assert os.path.isfile(
-        os.path.join(str(core_dir), "packages", "contrib-pysite", "package.json")
-    )
