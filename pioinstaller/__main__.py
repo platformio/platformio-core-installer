@@ -36,12 +36,18 @@ log = logging.getLogger(__name__)
     multiple=True,
     help="A path to Python to be ignored (multiple options and unix wildcards are allowed)",
 )
+@click.option(
+    "--pypi-index-url",
+    help="Custom base URL of the Python Package Index (default `https://pypi.org/simple)`",
+)
 @click.pass_context
 def cli(
-    ctx, verbose, shutdown_piohome, dev, ignore_python
+    ctx, verbose, shutdown_piohome, dev, ignore_python, pypi_index_url
 ):  # pylint:disable=too-many-arguments
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
+    if pypi_index_url:
+        os.environ["PIP_INDEX_URL"] = pypi_index_url
     ctx.obj["dev"] = dev
     if ctx.invoked_subcommand:
         return
