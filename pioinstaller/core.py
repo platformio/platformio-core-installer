@@ -248,9 +248,19 @@ def check(dev=False, auto_upgrade=False, version_spec=None):
 
 
 def fetch_python_state(python_exe):
-    code = """import platform
+    code = """
 import json
+import platform
+import sys
+
 import platformio
+
+if sys.version_info < (3, 6):
+    raise Exception(
+        "Unsupported Python version: %s. "
+        "Minimum supported Python version is 3.6 or above."
+        % platform.python_version(),
+    )
 
 state = {
    "core_version": platformio.__version__,
