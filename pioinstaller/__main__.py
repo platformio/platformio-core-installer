@@ -36,22 +36,31 @@ log = logging.getLogger(__name__)
     multiple=True,
     help="A path to Python to be ignored (multiple options and unix wildcards are allowed)",
 )
+@click.option(
+    "--pypi-index-url",
+    help="Custom base URL of the Python Package Index (default `https://pypi.org/simple)`",
+)
 @click.pass_context
 def cli(
-    ctx, verbose, shutdown_piohome, dev, ignore_python
+    ctx, verbose, shutdown_piohome, dev, ignore_python, pypi_index_url
 ):  # pylint:disable=too-many-arguments
     if verbose:
         logging.getLogger("pioinstaller").setLevel(logging.DEBUG)
+    if pypi_index_url:
+        os.environ["PIP_INDEX_URL"] = pypi_index_url
     ctx.obj["dev"] = dev
-    if not ctx.invoked_subcommand:
-        click.echo("Installer version: %s" % __version__)
-        click.echo("Platform: %s" % platform.platform(terse=True))
-        click.echo("Python version: %s" % sys.version)
-        click.echo("Python path: %s" % sys.executable)
-        try:
-            core.install_platformio_core(shutdown_piohome, dev, ignore_python)
-        except exception.PIOInstallerException as e:
-            raise click.ClickException(str(e))
+    if ctx.invoked_subcommand:
+        return
+
+    click.echo("Installer version: %s" % __version__)
+    click.echo("Platform: %s" % platform.platform(terse=True))
+    click.echo("Python version: %s" % sys.version)
+    click.echo("Python path: %s" % sys.executable)
+
+    try:
+        core.install_platformio_core(shutdown_piohome, dev, ignore_python)
+    except exception.PIOInstallerException as exc:
+        raise click.ClickException(str(exc))
 
 
 @cli.command()
