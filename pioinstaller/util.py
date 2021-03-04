@@ -84,6 +84,7 @@ def safe_create_dir(path, raise_exception=False):
     except Exception as e:  # pylint: disable=broad-except
         if raise_exception:
             raise e
+    return None
 
 
 def download_file(url, dst, cache=True):
@@ -127,6 +128,7 @@ def safe_remove_dir(path, raise_exception=False):
     except Exception as e:  # pylint: disable=broad-except
         if raise_exception:
             raise e
+    return None
 
 
 def pepver_to_semver(pepver):

@@ -38,7 +38,7 @@ log = logging.getLogger(__name__)
 )
 @click.option(
     "--pypi-index-url",
-    help="Custom base URL of the Python Package Index (default `https://pypi.org/simple)`",
+    help="Custom base URL of the Python Package Index (default `https://pypi.org/simple`)",
 )
 @click.pass_context
 def cli(

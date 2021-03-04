@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import glob
+import json
 import logging
 import os
 import platform
@@ -21,26 +22,12 @@ import sys
 import tempfile
 
 import click
+import requests
+import semantic_version
 
 from pioinstaller import exception, util
 
 log = logging.getLogger(__name__)
-
-
-PORTABLE_PYTHONS = {
-    "windows_x86": (
-        "https://dl.bintray.com/platformio/dl-misc/"
-        "python-portable-windows_x86-3.7.7.tar.gz"
-    ),
-    "windows_amd64": (
-        "https://dl.bintray.com/platformio/dl-misc/"
-        "python-portable-windows_amd64-3.7.7.tar.gz"
-    ),
-    "darwin_x86_64": (
-        "https://dl.bintray.com/platformio/dl-misc/"
-        "python-portable-darwin_x86_64-3.8.4.tar.gz"
-    ),
-}
 
 
 def is_conda():
@@ -62,13 +49,27 @@ def is_portable():
 
         return True
     except:  # pylint:disable=bare-except
+        pass
+    print(os.path.normpath(sys.executable))
+    python_dir = os.path.dirname(sys.executable)
+    if not util.IS_WINDOWS:
+        # skip "bin" folder
+        python_dir = os.path.dirname(python_dir)
+    manifest_path = os.path.join(python_dir, "package.json")
+    if not os.path.isfile(manifest_path):
         return False
+    try:
+        with open(manifest_path) as fp:
+            return json.load(fp).get("name") == "python-portable"
+    except ValueError:
+        pass
+    return False
 
 
 def fetch_portable_python(dst):
-    url = PORTABLE_PYTHONS.get(util.get_systype())
+    url = get_portable_python_url()
     if not url:
-        log.debug("There is no portable Python for %s", util.get_systype())
+        log.debug("Could not find portable Python for %s", util.get_systype())
         return None
     try:
         log.debug("Downloading portable python...")
@@ -88,6 +89,34 @@ def fetch_portable_python(dst):
         return os.path.join(python_dir, "bin", "python3")
     except:  # pylint:disable=bare-except
         log.debug("Could not download portable python")
+    return None
+
+
+def get_portable_python_url():
+    systype = util.get_systype()
+    result = requests.get(
+        "https://api.registry.platformio.org/v3/packages/"
+        "platformio/tool/python-portable"
+    ).json()
+    versions = [
+        version
+        for version in result["versions"]
+        if is_version_system_compatible(version, systype)
+    ]
+    best_version = None
+    for version in versions:
+        if not best_version or semantic_version.Version(
+            version.name
+        ) > semantic_version.Version(best_version.name):
+            best_version = version
+    for item in (best_version or {}).get("files", []):
+        if systype in item["system"]:
+            return item["download_url"]
+    return None
+
+
+def is_version_system_compatible(version, systype):
+    return any(systype in item["system"] for item in version["files"])
 
 
 def check():
