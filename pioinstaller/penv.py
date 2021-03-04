@@ -54,11 +54,7 @@ def create_core_penv(penv_dir=None, ignore_pythons=None):
         if result_dir:
             break
 
-    if (
-        not result_dir
-        and util.get_systype() in python.PORTABLE_PYTHONS
-        and not python.is_portable()
-    ):
+    if not result_dir and not python.is_portable():
         python_exe = python.fetch_portable_python(os.path.dirname(penv_dir))
         if python_exe:
             result_dir = create_virtualenv(python_exe, penv_dir)
@@ -95,6 +91,7 @@ def create_virtualenv(python_exe, penv_dir):
                 "Could not create virtualenv with downloaded script. Error: %s",
                 str(e),
             )
+    return None
 
 
 def create_with_local_venv(python_exe, penv_dir):
