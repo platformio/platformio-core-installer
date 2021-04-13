@@ -141,7 +141,7 @@ See https://docs.platformio.org/page/installation.html#install-shell-commands
 
 
 def check(dev=False, auto_upgrade=False, version_spec=None):
-    # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import
+    # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import, too-many-branches
     from pioinstaller import penv
 
     platformio_exe = os.path.join(
@@ -238,7 +238,11 @@ def check(dev=False, auto_upgrade=False, version_spec=None):
     if not last_piocore_version_check:
         return result
 
-    upgrade_core(platformio_exe, dev)
+    # capture exception when Internet is off-line
+    try:
+        upgrade_core(platformio_exe, dev)
+    except:  # pylint:disable=bare-except
+        return result
 
     try:
         result.update(fetch_python_state(python_exe))
