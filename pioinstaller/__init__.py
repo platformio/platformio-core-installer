@@ -14,7 +14,11 @@
 
 import logging.config
 
+<<<<<<< HEAD
 VERSION = (1, 0, 2)
+=======
+VERSION = (1, 0, 0)
+>>>>>>> parent of c289632 (Merge tag 'v1.0.1' into develop)
 __version__ = ".".join([str(s) for s in VERSION])
 
 __title__ = "platformio-installer"

@@ -11,3 +11,5 @@ build/
 
 # Misc
 .idea
+.github/get-platformio.py
+get-platformio.py
