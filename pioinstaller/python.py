@@ -216,6 +216,7 @@ def find_compatible_pythons(
                 error = e.output.decode()
                 log.debug(error)
             except UnicodeDecodeError:
+                error = ""
                 pass
             error = error or ""
             if "Could not find distutils module" in error:
