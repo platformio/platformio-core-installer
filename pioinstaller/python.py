@@ -212,13 +212,13 @@ def find_compatible_pythons(
             except UnicodeDecodeError:
                 pass
         except subprocess.CalledProcessError as e:  # pylint:disable=bare-except
+            error = None
             try:
                 error = e.output.decode()
                 log.debug(error)
             except UnicodeDecodeError:
                 pass
-            error = error or ""
-            if "Could not find distutils module" in error:
+            if error and "Could not find distutils module" in error:
                 # pylint:disable=line-too-long
                 raise click.ClickException(
                     """Can not install PlatformIO Core due to a missed `distutils` package in your Python installation.
