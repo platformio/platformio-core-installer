@@ -2,8 +2,8 @@ lint:
 	pylint --rcfile=./.pylintrc ./pioinstaller
 
 isort:
-	isort -rc ./pioinstaller
-	isort -rc ./tests
+	isort ./tests
+	isort ./pioinstaller
 
 format:
 	black --target-version py27 ./pioinstaller
