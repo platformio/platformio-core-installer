@@ -35,13 +35,13 @@ setup(
     license=__license__,
     install_requires=[
         # Core
-        "click==7.1.2",
-        "requests==2.25.1",
+        "click==8.0.1",
+        "requests==2.26.0",
         "colorama==0.4.4",
         "semantic-version==2.8.5",
-        "certifi==2020.12.5",
+        "certifi==2021.5.30",
         # Misc
-        "wheel==0.36.2",
+        "wheel==0.37.0",
     ],
     packages=find_packages(),
     entry_points={

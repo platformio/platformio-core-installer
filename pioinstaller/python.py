@@ -211,14 +211,14 @@ def find_compatible_pythons(
                 log.debug(output.decode().strip())
             except UnicodeDecodeError:
                 pass
-        except subprocess.CalledProcessError as e:  # pylint:disable=bare-except
+        except subprocess.CalledProcessError as e:
+            error = None
             try:
                 error = e.output.decode()
                 log.debug(error)
             except UnicodeDecodeError:
                 pass
-            error = error or ""
-            if "Could not find distutils module" in error:
+            if error and "Could not find distutils module" in error:
                 # pylint:disable=line-too-long
                 raise click.ClickException(
                     """Can not install PlatformIO Core due to a missed `distutils` package in your Python installation.
@@ -228,6 +228,8 @@ $ apt-get install python3-venv
 
 (MAY require administrator access `sudo`)""",
                 )
+        except Exception as e:  # pylint: disable=broad-except
+            log.debug(e)
 
     if not result and raise_exception:
         raise exception.IncompatiblePythonError(
