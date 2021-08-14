@@ -211,7 +211,7 @@ def find_compatible_pythons(
                 log.debug(output.decode().strip())
             except UnicodeDecodeError:
                 pass
-        except subprocess.CalledProcessError as e:  # pylint:disable=bare-except
+        except subprocess.CalledProcessError as e:
             error = None
             try:
                 error = e.output.decode()
@@ -228,6 +228,8 @@ $ apt-get install python3-venv
 
 (MAY require administrator access `sudo`)""",
                 )
+        except Exception as e:  # pylint: disable=broad-except
+            log.debug(e)
 
     if not result and raise_exception:
         raise exception.IncompatiblePythonError(
