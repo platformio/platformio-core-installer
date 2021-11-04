@@ -35,11 +35,11 @@ setup(
     license=__license__,
     install_requires=[
         # Core
-        "click==8.0.1",
+        "click==8.0.3",
         "requests==2.26.0",
         "colorama==0.4.4",
         "semantic-version==2.8.5",
-        "certifi==2021.5.30",
+        "certifi==2021.10.8",
         # Misc
         "wheel==0.37.0",
     ],
