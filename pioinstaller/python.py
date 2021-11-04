@@ -103,13 +103,13 @@ def get_portable_python_url():
         for version in result["versions"]
         if is_version_system_compatible(version, systype)
     ]
-    best_version = None
+    best_version = {}
     for version in versions:
         if not best_version or semantic_version.Version(
-            version.name
-        ) > semantic_version.Version(best_version.name):
+            version["name"]
+        ) > semantic_version.Version(best_version["name"]):
             best_version = version
-    for item in (best_version or {}).get("files", []):
+    for item in best_version.get("files", []):
         if systype in item["system"]:
             return item["download_url"]
     return None
