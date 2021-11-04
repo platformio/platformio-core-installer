@@ -15,4 +15,6 @@ disable=
     arguments-differ,
     useless-object-inheritance,
     super-with-arguments,
-    raise-missing-from
+    raise-missing-from,
+    consider-using-f-string,
+    unspecified-encoding
