@@ -68,7 +68,7 @@ def create_core_penv(penv_dir=None, ignore_pythons=None):
     python_exe = os.path.join(
         get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
     )
-    add_state_info(python_exe, penv_dir)
+    init_state(python_exe, penv_dir)
     install_pip(python_exe, penv_dir)
     click.echo("Virtual environment has been successfully created!")
     return result_dir
@@ -132,7 +132,7 @@ def create_with_remote_venv(python_exe, penv_dir):
     return penv_dir
 
 
-def add_state_info(python_exe, penv_dir):
+def init_state(python_exe, penv_dir):
     version_code = (
         "import sys; version=sys.version_info; "
         "print('%d.%d.%d'%(version[0],version[1],version[2]))"
@@ -153,9 +153,26 @@ def add_state_info(python_exe, penv_dir):
         "installer_version": __version__,
         "platform": platform.platform(terse=True),
     }
-    with open(os.path.join(penv_dir, "state.json"), "w") as fp:
+    return save_state(state, penv_dir)
+
+
+def load_state(penv_dir=None):
+    penv_dir = penv_dir or get_penv_dir()
+    state_path = os.path.join(penv_dir, "state.json")
+    if not os.path.isfile(state_path):
+        raise exception.PIOInstallerException(
+            "Could not found state.json file in `%s`" % state_path
+        )
+    with open(state_path) as fp:
+        return json.load(fp)
+
+
+def save_state(state, penv_dir=None):
+    penv_dir = penv_dir or get_penv_dir()
+    state_path = os.path.join(penv_dir, "state.json")
+    with open(state_path, "w") as fp:
         json.dump(state, fp)
-    return os.path.join(penv_dir, "state.json")
+    return state_path
 
 
 def install_pip(python_exe, penv_dir):

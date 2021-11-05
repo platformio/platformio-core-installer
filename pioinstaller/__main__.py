@@ -99,6 +99,7 @@ def python():
 
 @check.command("core")
 @click.option("--auto-upgrade/--no-auto-upgrade", is_flag=True, default=True)
+@click.option("--global", is_flag=True, default=False)
 @click.option("--version-spec", default=None)
 @click.option(
     "--dump-state",
@@ -107,15 +108,16 @@ def python():
     ),
 )
 @click.pass_context
-def core_check(ctx, auto_upgrade, version_spec, dump_state):
+def core_check(ctx, **kwargs):
     try:
         state = core.check(
-            dev=ctx.obj.get("dev", False),
-            auto_upgrade=auto_upgrade,
-            version_spec=version_spec,
+            develop=ctx.obj.get("dev", False),
+            global_=kwargs.get("global"),
+            auto_upgrade=kwargs.get("auto_upgrade"),
+            version_spec=kwargs.get("version_spec"),
         )
-        if dump_state:
-            core.dump_state(target=str(dump_state), state=state)
+        if kwargs.get("dump_state"):
+            core.dump_state(target=str(kwargs.get("dump_state")), state=state)
         click.secho(
             "Found compatible PlatformIO Core %s -> %s"
             % (state.get("core_version"), state.get("platformio_exe")),
