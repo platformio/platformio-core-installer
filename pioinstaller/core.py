@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=import-outside-toplevel
+
 import json
 import logging
 import os
 import platform
 import subprocess
+import sys
 import time
 
 import click
@@ -140,40 +143,46 @@ See https://docs.platformio.org/page/installation.html#install-shell-commands
     return True
 
 
-def check(dev=False, auto_upgrade=False, version_spec=None):
-    # pylint: disable=bad-option-value, import-outside-toplevel, unused-import, import-error, unused-variable, cyclic-import, too-many-branches
+def check(develop=False, global_=False, auto_upgrade=False, version_spec=None):
     from pioinstaller import penv
 
-    platformio_exe = os.path.join(
-        penv.get_penv_bin_dir(),
-        "platformio.exe" if util.IS_WINDOWS else "platformio",
+    python_exe = (
+        os.path.normpath(sys.executable)
+        if global_
+        else os.path.join(
+            penv.get_penv_bin_dir(), "python.exe" if util.IS_WINDOWS else "python"
+        )
     )
-    python_exe = os.path.join(
-        penv.get_penv_bin_dir(), "python.exe" if util.IS_WINDOWS else "python"
+    platformio_exe = (
+        util.where_is_program("platformio")
+        if global_
+        else os.path.join(
+            penv.get_penv_bin_dir(),
+            "platformio.exe" if util.IS_WINDOWS else "platformio",
+        )
     )
-    result = {}
-
     if not os.path.isfile(platformio_exe):
         raise exception.InvalidPlatformIOCore(
             "PlatformIO executable not found in `%s`" % penv.get_penv_bin_dir()
         )
-
-    if not os.path.isfile(os.path.join(penv.get_penv_dir(), "state.json")):
+    try:
+        subprocess.check_output([platformio_exe, "--version"], stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        error = e.output.decode()
         raise exception.InvalidPlatformIOCore(
-            "Could not found state.json file in `%s`"
-            % os.path.join(penv.get_penv_dir(), "state.json")
+            "Could not run `%s --version`.\nError: %s" % (platformio_exe, str(error))
         )
 
+    result = {}
     try:
-        result.update(fetch_python_state(python_exe))
+        result = fetch_python_state(python_exe)
     except subprocess.CalledProcessError as e:
         error = e.output.decode()
         raise exception.InvalidPlatformIOCore(
             "Could not import PlatformIO module. Error: %s" % error
         )
-
     piocore_version = convert_version(result.get("core_version"))
-    dev = dev or bool(piocore_version.prerelease if piocore_version else False)
+    develop = develop or bool(piocore_version.prerelease if piocore_version else False)
     result.update(
         {
             "core_dir": get_core_dir(),
@@ -184,71 +193,52 @@ def check(dev=False, auto_upgrade=False, version_spec=None):
             "installer_version": __version__,
             "python_exe": python_exe,
             "system": util.get_systype(),
-            "is_develop_core": dev,
+            "is_develop_core": develop,
         }
     )
 
     if version_spec:
+        _check_core_version(piocore_version, version_spec)
+    if not global_:
+        _check_platform_version()
+    if auto_upgrade and not global_:
         try:
-            if piocore_version not in semantic_version.Spec(version_spec):
-                raise exception.InvalidPlatformIOCore(
-                    "PlatformIO Core version %s does not match version requirements %s."
-                    % (str(piocore_version), version_spec)
-                )
-        except ValueError:
-            click.secho(
-                "Invalid version requirements format: %s. "
-                "More about Semantic Versioning: https://semver.org/" % version_spec
-            )
+            auto_upgrade_core(platformio_exe, develop)
+        except:  # pylint:disable=bare-except
+            pass
+        # re-fetch Pyrhon state
+        try:
+            result.update(fetch_python_state(python_exe))
+        except:  # pylint:disable=bare-except
+            raise exception.InvalidPlatformIOCore("Could not import PlatformIO module")
 
-    with open(os.path.join(penv.get_penv_dir(), "state.json")) as fp:
-        penv_state = json.load(fp)
-        if penv_state.get("platform") != platform.platform(terse=True):
-            raise exception.InvalidPlatformIOCore(
-                "PlatformIO Core was installed using another platform `%s`. "
-                "Your current platform: %s"
-                % (penv_state.get("platform"), platform.platform(terse=True))
-            )
+    return result
 
+
+def _check_core_version(piocore_version, version_spec):
     try:
-        subprocess.check_output([platformio_exe, "--version"], stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        error = e.output.decode()
-        raise exception.InvalidPlatformIOCore(
-            "Could not run `%s --version`.\nError: %s" % (platformio_exe, str(error))
+        if piocore_version not in semantic_version.Spec(version_spec):
+            raise exception.InvalidPlatformIOCore(
+                "PlatformIO Core version %s does not match version requirements %s."
+                % (str(piocore_version), version_spec)
+            )
+    except ValueError:
+        click.secho(
+            "Invalid version requirements format: %s. "
+            "More about Semantic Versioning: https://semver.org/" % version_spec
         )
 
-    if not auto_upgrade:
-        return result
 
-    time_now = int(round(time.time()))
+def _check_platform_version():
+    from pioinstaller import penv
 
-    last_piocore_version_check = penv_state.get("last_piocore_version_check")
-
-    if (
-        last_piocore_version_check
-        and (time_now - int(last_piocore_version_check)) < UPDATE_INTERVAL
-    ):
-        return result
-
-    with open(os.path.join(penv.get_penv_dir(), "state.json"), "w") as fp:
-        penv_state["last_piocore_version_check"] = time_now
-        json.dump(penv_state, fp)
-
-    if not last_piocore_version_check:
-        return result
-
-    # capture exception when Internet is off-line
-    try:
-        upgrade_core(platformio_exe, dev)
-    except:  # pylint:disable=bare-except
-        return result
-
-    try:
-        result.update(fetch_python_state(python_exe))
-    except:  # pylint:disable=bare-except
-        raise exception.InvalidPlatformIOCore("Could not import PlatformIO module")
-    return result
+    state = penv.load_state()
+    if state.get("platform") != platform.platform(terse=True):
+        raise exception.InvalidPlatformIOCore(
+            "PlatformIO Core was installed using another platform `%s`. "
+            "Your current platform: %s"
+            % (state.get("platform"), platform.platform(terse=True))
+        )
 
 
 def fetch_python_state(python_exe):
@@ -290,9 +280,25 @@ def convert_version(version):
         return None
 
 
-def upgrade_core(platformio_exe, dev=False):
+def auto_upgrade_core(platformio_exe, develop=False):
+    from pioinstaller import penv
+
+    state = penv.load_state()
+    time_now = int(round(time.time()))
+    last_piocore_version_check = state.get("last_piocore_version_check")
+    if (
+        last_piocore_version_check
+        and (time_now - int(last_piocore_version_check)) < UPDATE_INTERVAL
+    ):
+        return None
+
+    state["last_piocore_version_check"] = time_now
+    penv.save_state(state)
+    if not last_piocore_version_check:
+        return None
+
     command = [platformio_exe, "upgrade"]
-    if dev:
+    if develop:
         command.append("--dev")
     try:
         subprocess.check_output(
@@ -304,6 +310,7 @@ def upgrade_core(platformio_exe, dev=False):
         raise exception.PIOInstallerException(
             "Could not upgrade PlatformIO Core: %s" % str(e)
         )
+    return False
 
 
 def dump_state(target, state):

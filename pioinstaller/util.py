@@ -19,6 +19,7 @@ import platform
 import re
 import shutil
 import stat
+import subprocess
 import sys
 import tarfile
 
@@ -133,3 +134,32 @@ def safe_remove_dir(path, raise_exception=False):
 
 def pepver_to_semver(pepver):
     return re.sub(r"(\.\d+)\.?(dev|a|b|rc|post)", r"\1-\2.", pepver, 1)
+
+
+def where_is_program(program, envpath=None):
+    env = os.environ
+    if envpath:
+        env["PATH"] = envpath
+
+    # try OS's built-in commands
+    try:
+        result = (
+            subprocess.check_output(
+                ["where" if IS_WINDOWS else "which", program], env=env
+            )
+            .decode()
+            .strip()
+        )
+        if os.path.isfile(result):
+            return result
+    except (subprocess.CalledProcessError, OSError):
+        pass
+
+    # look up in $PATH
+    for bin_dir in env.get("PATH", "").split(os.pathsep):
+        if os.path.isfile(os.path.join(bin_dir, program)):
+            return os.path.join(bin_dir, program)
+        if os.path.isfile(os.path.join(bin_dir, "%s.exe" % program)):
+            return os.path.join(bin_dir, "%s.exe" % program)
+
+    return program
