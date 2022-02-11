@@ -36,12 +36,12 @@ setup(
     install_requires=[
         # Core
         "click==8.0.3",
-        "requests==2.26.0",
+        "requests==2.27.1",
         "colorama==0.4.4",
-        "semantic-version==2.8.5",
+        "semantic-version==2.9.0",
         "certifi==2021.10.8",
         # Misc
-        "wheel==0.37.0",
+        "wheel==0.37.1",
     ],
     packages=find_packages(),
     entry_points={
