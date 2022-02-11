@@ -38,7 +38,7 @@ setup(
         "click==8.0.3",
         "requests==2.27.1",
         "colorama==0.4.4",
-        "semantic-version==2.9.0",
+        "semantic-version==2.8.5",
         "certifi==2021.10.8",
         # Misc
         "wheel==0.37.1",
