@@ -166,11 +166,11 @@ def check(develop=False, global_=False, auto_upgrade=False, version_spec=None):
             "PlatformIO executable not found in `%s`" % penv.get_penv_bin_dir()
         )
     try:
-        subprocess.check_output([platformio_exe, "--version"], stderr=subprocess.STDOUT)
+        subprocess.check_output([platformio_exe, "--help"], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         error = e.output.decode()
         raise exception.InvalidPlatformIOCore(
-            "Could not run `%s --version`.\nError: %s" % (platformio_exe, str(error))
+            "Could not run `%s --help`.\nError: %s" % (platformio_exe, str(error))
         )
 
     result = {}

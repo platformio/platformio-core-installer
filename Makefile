@@ -6,8 +6,8 @@ isort:
 	isort ./pioinstaller
 
 format:
-	black --target-version py27 ./pioinstaller
-	black --target-version py27 ./tests
+	black ./pioinstaller
+	black ./tests
 
 test:
 	py.test --verbose --capture=no --exitfirst tests
