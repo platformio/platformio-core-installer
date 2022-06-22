@@ -151,7 +151,10 @@ def init_state(python_exe, penv_dir):
             "version": python_version,
         },
         "installer_version": __version__,
-        "platform": platform.platform(terse=True),
+        "platform": {
+            "platform": platform.platform(),
+            "release": platform.release(),
+        },
     }
     return save_state(state, penv_dir)
 
