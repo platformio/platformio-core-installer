@@ -86,10 +86,10 @@ def create_virtualenv(python_exe, penv_dir):
         )
         try:
             return create_with_remote_venv(python_exe, penv_dir)
-        except Exception as e:  # pylint:disable=broad-except
+        except Exception as exc:  # pylint:disable=broad-except
             log.debug(
                 "Could not create virtualenv with downloaded script. Error: %s",
-                str(e),
+                str(exc),
             )
     return None
 
@@ -151,7 +151,10 @@ def init_state(python_exe, penv_dir):
             "version": python_version,
         },
         "installer_version": __version__,
-        "platform": platform.platform(terse=True),
+        "platform": {
+            "platform": platform.platform(),
+            "release": platform.release(),
+        },
     }
     return save_state(state, penv_dir)
 

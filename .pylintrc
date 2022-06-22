@@ -10,7 +10,6 @@ disable=
     ungrouped-imports,
     invalid-name,
     duplicate-code,
-    bad-continuation,
     fixme,
     arguments-differ,
     useless-object-inheritance,

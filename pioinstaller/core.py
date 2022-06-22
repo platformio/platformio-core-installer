@@ -232,13 +232,22 @@ def _check_core_version(piocore_version, version_spec):
 def _check_platform_version():
     from pioinstaller import penv
 
-    state = penv.load_state()
-    if state.get("platform") != platform.platform(terse=True):
-        raise exception.InvalidPlatformIOCore(
-            "PlatformIO Core was installed using another platform `%s`. "
-            "Your current platform: %s"
-            % (state.get("platform"), platform.platform(terse=True))
-        )
+    platform_state = penv.load_state().get("platform")
+    if not platform_state or not isinstance(platform_state, dict):
+        raise exception.PIOInstallerException("Broken platform state")
+    if platform_state.get("platform") == platform.platform(terse=True):
+        return True
+    release_state = platform_state.get("release")
+    if (
+        release_state
+        and release_state.split(".")[0] == (platform.release() or "").split(".")[0]
+    ):
+        return True
+    raise exception.InvalidPlatformIOCore(
+        "PlatformIO Core was installed using another platform `%s`. "
+        "Your current platform: %s"
+        % (platform_state.get("platform"), platform.platform(terse=True))
+    )
 
 
 def fetch_python_state(python_exe):
