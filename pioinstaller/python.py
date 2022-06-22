@@ -186,10 +186,7 @@ def find_compatible_pythons(
                 continue
             candidates.append(os.path.join(path, exe))
     if sys.executable not in candidates:
-        if sys.version_info >= (3,):
-            candidates.insert(0, sys.executable)
-        else:
-            candidates.append(sys.executable)
+        candidates.insert(0, sys.executable)
     result = []
     for item in candidates:
         if item in ignore_list:
