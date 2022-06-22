@@ -35,7 +35,7 @@ setup(
     license=__license__,
     install_requires=[
         # Core
-        "click==8.1.3",
+        "click==8.0.4",  # >8.0.4 does not support Python 3.6
         "requests==2.27.1",
         "colorama==0.4.5",
         "semantic-version==2.8.5",  # >2.8.5 does not support Python 3.6
