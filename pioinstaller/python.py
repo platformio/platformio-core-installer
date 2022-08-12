@@ -175,7 +175,15 @@ def find_compatible_pythons(
     ignore_list = []
     for p in ignore_pythons or []:
         ignore_list.extend(glob.glob(p))
-    exenames = ["python3", "python"]
+    exenames = [
+        # "python3.11",
+        "python3.10",
+        "python3.9",
+        "python3.8",
+        "python3.7",
+        "python3",
+        "python",
+    ]
     if util.IS_WINDOWS:
         exenames = ["%s.exe" % item for item in exenames]
     log.debug("Current environment PATH %s", os.getenv("PATH"))
