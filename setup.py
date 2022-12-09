@@ -39,7 +39,7 @@ setup(
         "requests==2.27.1",
         "colorama==0.4.5",
         "semantic-version==2.8.5",  # >2.8.5 does not support Python 3.6
-        "certifi==2022.6.15",
+        "certifi==2022.12.7",
         # Misc
         "wheel==0.37.1",
     ],
