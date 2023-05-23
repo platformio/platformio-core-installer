@@ -36,7 +36,7 @@ setup(
     install_requires=[
         # Core
         "click==8.0.4",  # >8.0.4 does not support Python 3.6
-        "requests==2.27.1",
+        "requests==2.31.0",
         "colorama==0.4.5",
         "semantic-version==2.8.5",  # >2.8.5 does not support Python 3.6
         "certifi==2022.6.15",
