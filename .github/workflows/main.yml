@@ -38,4 +38,4 @@ jobs:
       - name: Install PlatformIO Core
         run: |
           python3 get-platformio.py
-          ~/.platformio/penv/bin/pio --help
+          ~/.platformio/penv/bin/pio system info
