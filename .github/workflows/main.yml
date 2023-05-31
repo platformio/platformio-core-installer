@@ -32,3 +32,6 @@ jobs:
       - name: Integration Tests
         run: |
           make test
+      - name: Pack Installer Script
+        run: |
+          make pack
