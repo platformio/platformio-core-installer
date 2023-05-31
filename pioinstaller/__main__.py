@@ -90,7 +90,7 @@ def python():
             % (platform.python_version(), util.get_pythonexe_path()),
             fg="green",
         )
-    except (exception.IncompatiblePythonError, exception.DistutilsNotFound) as e:
+    except (exception.IncompatiblePythonError, exception.PythonVenvModuleNotFound) as e:
         raise click.ClickException(
             "The Python %s (%s) interpreter is not compatible.\nReason: %s"
             % (platform.python_version(), util.get_pythonexe_path(), str(e))
@@ -123,7 +123,7 @@ def core_check(ctx, **kwargs):
             % (state.get("core_version"), state.get("platformio_exe")),
             fg="green",
         )
-    except (exception.InvalidPlatformIOCore) as e:
+    except exception.InvalidPlatformIOCore as e:
         raise click.ClickException(
             "Compatible PlatformIO Core not found.\nReason: %s" % str(e)
         )

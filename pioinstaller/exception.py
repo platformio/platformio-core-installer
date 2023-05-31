@@ -14,7 +14,6 @@
 
 
 class PIOInstallerException(Exception):
-
     MESSAGE = None
 
     def __str__(self):  # pragma: no cover
@@ -26,15 +25,12 @@ class PIOInstallerException(Exception):
 
 
 class IncompatiblePythonError(PIOInstallerException):
-
     MESSAGE = "{0}"
 
 
-class DistutilsNotFound(PIOInstallerException):
-
-    MESSAGE = "Could not find distutils module"
+class PythonVenvModuleNotFound(PIOInstallerException):
+    MESSAGE = "Could not find Python `venv` module"
 
 
 class InvalidPlatformIOCore(PIOInstallerException):
-
     MESSAGE = "{0}"

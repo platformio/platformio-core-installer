@@ -138,9 +138,10 @@ def check():
         raise exception.IncompatiblePythonError("Conda is not supported")
 
     try:
-        __import__("distutils.command")
+        __import__("venv")
+        # __import__("distutils.command")
     except ImportError:
-        raise exception.DistutilsNotFound()
+        raise exception.PythonVenvModuleNotFound()
 
     # portable Python 3 for macOS is not compatible with macOS < 10.13
     # https://github.com/platformio/platformio-core-installer/issues/70
@@ -224,10 +225,10 @@ def find_compatible_pythons(
                 log.debug(error)
             except UnicodeDecodeError:
                 pass
-            if error and "Could not find distutils module" in error:
+            if error and "`venv` module" in error:
                 # pylint:disable=line-too-long
                 raise click.ClickException(
-                    """Can not install PlatformIO Core due to a missed `distutils` package in your Python installation.
+                    """Can not install PlatformIO Core due to a missed `venv` module in your Python installation.
 Please install this package manually using the OS package manager. For example:
 
 $ apt-get install python3-venv
