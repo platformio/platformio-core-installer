@@ -36,12 +36,13 @@ setup(
     install_requires=[
         # Core
         "click==8.0.4",  # >8.0.4 does not support Python 3.6
-        "requests==2.27.1",
-        "colorama==0.4.5",
+        "urllib3<2", # issue 4614: urllib3 v2.0 only supports OpenSSL 1.1.1+
+        "requests==2.31.0",
+        "colorama==0.4.6",
         "semantic-version==2.8.5",  # >2.8.5 does not support Python 3.6
-        "certifi==2022.6.15",
+        "certifi==2023.5.7",
         # Misc
-        "wheel==0.37.1",
+        "wheel==0.40.0",
     ],
     packages=find_packages(),
     entry_points={
