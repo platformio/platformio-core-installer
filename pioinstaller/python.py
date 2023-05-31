@@ -96,7 +96,8 @@ def get_portable_python_url():
     systype = util.get_systype()
     result = requests.get(
         "https://api.registry.platformio.org/v3/packages/"
-        "platformio/tool/python-portable"
+        "platformio/tool/python-portable",
+        timeout=10,
     ).json()
     versions = [
         version
