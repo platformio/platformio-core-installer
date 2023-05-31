@@ -38,4 +38,9 @@ jobs:
       - name: Install PlatformIO Core
         run: |
           python3 get-platformio.py
-          ~/.platformio/penv/bin/pio system info
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            ~/.platformio/penv/Scripts/pio.exe system info
+          else
+            ~/.platformio/penv/bin/pio system info
+          fi
+        shell: bash
