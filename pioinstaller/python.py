@@ -96,7 +96,8 @@ def get_portable_python_url():
     systype = util.get_systype()
     result = requests.get(
         "https://api.registry.platformio.org/v3/packages/"
-        "platformio/tool/python-portable"
+        "platformio/tool/python-portable",
+        timeout=10,
     ).json()
     versions = [
         version
@@ -137,9 +138,10 @@ def check():
         raise exception.IncompatiblePythonError("Conda is not supported")
 
     try:
-        __import__("distutils.command")
+        __import__("venv")
+        # __import__("distutils.command")
     except ImportError:
-        raise exception.DistutilsNotFound()
+        raise exception.PythonVenvModuleNotFound()
 
     # portable Python 3 for macOS is not compatible with macOS < 10.13
     # https://github.com/platformio/platformio-core-installer/issues/70
@@ -175,7 +177,15 @@ def find_compatible_pythons(
     ignore_list = []
     for p in ignore_pythons or []:
         ignore_list.extend(glob.glob(p))
-    exenames = ["python3", "python"]
+    exenames = [
+        # "python3.11",
+        "python3.10",
+        "python3.9",
+        "python3.8",
+        "python3.7",
+        "python3",
+        "python",
+    ]
     if util.IS_WINDOWS:
         exenames = ["%s.exe" % item for item in exenames]
     log.debug("Current environment PATH %s", os.getenv("PATH"))
@@ -215,10 +225,10 @@ def find_compatible_pythons(
                 log.debug(error)
             except UnicodeDecodeError:
                 pass
-            if error and "Could not find distutils module" in error:
+            if error and "`venv` module" in error:
                 # pylint:disable=line-too-long
                 raise click.ClickException(
-                    """Can not install PlatformIO Core due to a missed `distutils` package in your Python installation.
+                    """Can not install PlatformIO Core due to a missed `venv` module in your Python installation.
 Please install this package manually using the OS package manager. For example:
 
 $ apt-get install python3-venv

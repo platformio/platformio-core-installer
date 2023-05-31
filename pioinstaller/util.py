@@ -90,12 +90,12 @@ def safe_create_dir(path, raise_exception=False):
 
 def download_file(url, dst, cache=True):
     if cache:
-        content_length = requests.head(url).headers.get("Content-Length")
+        content_length = requests.head(url, timeout=10).headers.get("Content-Length")
         if os.path.isfile(dst) and content_length == os.path.getsize(dst):
             log.debug("Getting from cache: %s", dst)
             return dst
 
-    resp = requests.get(url, stream=True)
+    resp = requests.get(url, stream=True, timeout=10)
     itercontent = resp.iter_content(chunk_size=io.DEFAULT_BUFFER_SIZE)
     safe_create_dir(os.path.dirname(dst))
     with open(dst, "wb") as fp:

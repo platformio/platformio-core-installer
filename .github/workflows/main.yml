@@ -8,17 +8,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
-        exclude:
-          - os: macos-latest
-            python-version: "3.6"
-          - os: windows-latest
-            python-version: "3.6"            
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Check Python
@@ -37,11 +32,15 @@ jobs:
       - name: Integration Tests
         run: |
           make test
-#      - name: Slack Notification
-#        uses: homoluctus/slatify@master
-#        if: failure()
-#        with:
-#          type: ${{ job.status }}
-#          job_name: '*Installer*'
-#          commit: true
-#          url: ${{ secrets.SLACK_BUILD_WEBHOOK }}
+      - name: Pack Installer Script
+        run: |
+          make pack
+      - name: Install PlatformIO Core
+        run: |
+          python3 get-platformio.py
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            ~/.platformio/penv/Scripts/pio.exe system info
+          else
+            ~/.platformio/penv/bin/pio system info
+          fi
+        shell: bash
