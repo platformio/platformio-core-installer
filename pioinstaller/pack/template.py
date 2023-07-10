@@ -27,8 +27,10 @@ DEPENDENCIES = b"""
 
 def create_temp_dir():
     try:
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        tmp_dir = tempfile.mkdtemp(dir=cur_dir, prefix=".piocore-installer-")
+        parent_dir = os.getenv(
+            "PLATFORMIO_INSTALLER_TMPDIR", os.path.dirname(os.path.realpath(__file__))
+        )
+        tmp_dir = tempfile.mkdtemp(dir=parent_dir, prefix=".piocore-installer-")
         testscript_path = os.path.join(tmp_dir, "test.py")
         with open(testscript_path, "w") as fp:
             fp.write("print(1)")
