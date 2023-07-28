@@ -179,12 +179,12 @@ def find_compatible_pythons(
     for p in ignore_pythons or []:
         ignore_list.extend(glob.glob(p))
     exenames = [
-        # "python3.11",
+        "python3",  # system Python
+        "python3.11",
         "python3.10",
         "python3.9",
         "python3.8",
         "python3.7",
-        "python3",
         "python",
     ]
     if util.IS_WINDOWS:
@@ -196,8 +196,12 @@ def find_compatible_pythons(
             if not os.path.isfile(os.path.join(path, exe)):
                 continue
             candidates.append(os.path.join(path, exe))
-    if sys.executable not in candidates:
-        candidates.insert(0, sys.executable)
+
+    if sys.executable in candidates:
+        candidates.remove(sys.executable)
+    # put current Python to the top of list
+    candidates.insert(0, sys.executable)
+
     result = []
     for item in candidates:
         if item in ignore_list:
