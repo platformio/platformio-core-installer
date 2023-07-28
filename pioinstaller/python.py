@@ -203,6 +203,7 @@ def find_compatible_pythons(
     candidates.insert(0, sys.executable)
 
     result = []
+    missed_venv_module = False
     for item in candidates:
         if item in ignore_list:
             continue
@@ -224,26 +225,29 @@ def find_compatible_pythons(
             except UnicodeDecodeError:
                 pass
         except subprocess.CalledProcessError as e:
-            error = None
             try:
                 error = e.output.decode()
+                if error and "`venv` module" in error:
+                    missed_venv_module = True
                 log.debug(error)
             except UnicodeDecodeError:
                 pass
-            if error and "`venv` module" in error:
-                # pylint:disable=line-too-long
-                raise click.ClickException(
-                    """Can not install PlatformIO Core due to a missed `venv` module in your Python installation.
-Please install this package manually using the OS package manager. For example:
-
-$ apt-get install python3-venv
-
-(MAY require administrator access `sudo`)""",
-                )
         except Exception as e:  # pylint: disable=broad-except
             log.debug(e)
 
     if not result and raise_exception:
+        if missed_venv_module:
+            # pylint:disable=line-too-long
+            raise click.ClickException(
+                """Can not install PlatformIO Core due to a missed `venv` module in your Python installation.
+Please install this package manually using the OS package manager. For example:
+
+$ apt-get install python3.%d-venv
+
+(MAY require administrator access `sudo`)"""
+                % (sys.version_info[1]),
+            )
+
         raise exception.IncompatiblePythonError(
             "Could not find compatible Python 3.6 or above in your system."
             "Please install the latest official Python 3 and restart installation:\n"
