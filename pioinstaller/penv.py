@@ -69,7 +69,7 @@ def create_core_penv(penv_dir=None, ignore_pythons=None):
         get_penv_bin_dir(penv_dir), "python.exe" if util.IS_WINDOWS else "python"
     )
     init_state(python_exe, penv_dir)
-    install_pip(python_exe, penv_dir)
+    update_pip(python_exe, penv_dir)
     click.echo("Virtual environment has been successfully created!")
     return result_dir
 
@@ -107,7 +107,7 @@ def create_with_local_venv(python_exe, penv_dir):
         util.safe_remove_dir(penv_dir)
         log.debug("Creating virtual environment: %s", " ".join(command))
         try:
-            subprocess.check_output(command, stderr=subprocess.PIPE)
+            subprocess.run(command, check=True)
             return penv_dir
         except Exception as e:  # pylint:disable=broad-except
             last_error = e
@@ -128,7 +128,7 @@ def create_with_remote_venv(python_exe, penv_dir):
         raise exception.PIOInstallerException("Could not find virtualenv script")
     command = [python_exe, venv_script_path, penv_dir]
     log.debug("Creating virtual environment: %s", " ".join(command))
-    subprocess.check_output(command, stderr=subprocess.PIPE)
+    subprocess.run(command, check=True)
     return penv_dir
 
 
@@ -178,26 +178,36 @@ def save_state(state, penv_dir=None):
     return state_path
 
 
-def install_pip(python_exe, penv_dir):
-    click.echo("Updating Python package manager (PIP) in a virtual environment")
+def update_pip(python_exe, penv_dir):
+    click.echo("Updating Python package manager (PIP) in the virtual environment")
     try:
         log.debug("Creating pip.conf file in %s", penv_dir)
         with open(os.path.join(penv_dir, "pip.conf"), "w") as fp:
             fp.write("\n".join(["[global]", "user=no"]))
 
-        log.debug("Downloading 'get-pip.py' installer...")
-        get_pip_path = os.path.join(
-            os.path.dirname(penv_dir), ".cache", "tmp", os.path.basename(PIP_URL)
-        )
-        util.download_file(PIP_URL, get_pip_path)
+        try:
+            log.debug("Updating PIP ...")
+            subprocess.run(
+                [python_exe, "-m", "pip", "install", "-U", "pip"], check=True
+            )
+        except subprocess.CalledProcessError as e:
+            log.debug(
+                "Could not update PIP. Error: %s",
+                str(e),
+            )
+            log.debug("Downloading 'get-pip.py' installer...")
+            get_pip_path = os.path.join(
+                os.path.dirname(penv_dir), ".cache", "tmp", os.path.basename(PIP_URL)
+            )
+            util.download_file(PIP_URL, get_pip_path)
+            log.debug("Installing PIP ...")
+            subprocess.run([python_exe, get_pip_path], check=True)
 
-        log.debug("Installing pip")
-        subprocess.check_output([python_exe, get_pip_path], stderr=subprocess.PIPE)
         click.echo("PIP has been successfully updated!")
         return True
     except Exception as e:  # pylint:disable=broad-except
         log.debug(
-            "Could not install pip. Error: %s",
+            "Could not install PIP. Error: %s",
             str(e),
         )
         return False
