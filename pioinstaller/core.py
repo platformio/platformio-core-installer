@@ -57,12 +57,15 @@ def get_core_dir(force_to_root=False):
     return core_dir
 
 
-def get_cache_dir(path=None):
-    core_dir = path or get_core_dir()
-    path = os.path.join(core_dir, ".cache")
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    return path
+def get_cache_dir():
+    cache_dir = (
+        os.getenv("PLATFORMIO_CACHE_DIR")
+        if os.getenv("PLATFORMIO_CACHE_DIR")
+        else os.path.join(get_core_dir(), ".cache")
+    )
+    if not os.path.isdir(cache_dir):
+        os.makedirs(cache_dir)
+    return cache_dir
 
 
 def install_platformio_core(shutdown_piohome=True, develop=False, ignore_pythons=None):
