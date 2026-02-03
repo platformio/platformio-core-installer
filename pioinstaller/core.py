@@ -131,11 +131,11 @@ def _install_platformio_core(shutdown_piohome=True, develop=False, ignore_python
         % penv_dir,
         fg="green",
     )
-    click.secho("The full path to `platformio.exe` is `%s`" % platformio_exe, fg="cyan")
+    click.secho("The full path to the platformio executable is `%s`" % platformio_exe, fg="cyan")
     # pylint:disable=line-too-long
     click.secho(
         """
-If you need an access to `platformio.exe` from other applications, please install Shell Commands
+If you need an access to the platformio executable from other applications, please install Shell Commands
 (add PlatformIO Core binary directory `%s` to the system environment PATH variable):
 
 See https://docs.platformio.org/page/installation.html#install-shell-commands
